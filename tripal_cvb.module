@@ -1,0 +1,150 @@
+<?php
+
+/**
+ * @file
+ * This file contains all Drupal hooks implementations.
+ *
+ */
+
+require('api/tripal_cvb.api.php');
+require 'includes/tripal_cvb.admin.inc';
+
+/**
+ * Implements hook_permissions().
+ *
+ * 2 Permissions exist for Tripal CV Browser:
+ *   - Use of the CV browser page;
+ *   - Administer the CV Browser settings.
+ *
+ * @ingroup tripal_cvb
+ */
+function tripal_cvb_permission() {
+
+  return array(
+    'use tripal cv browser' => array(
+      'title' => t('Use Tripal CV Browser page'),
+      'description' => t('Allow users to access to the Tripal CV Browser page.'),
+    ),
+    'administer tripal cv browser' => array(
+      'title' => t('Administer Tripal CV Browser'),
+      'description' => t('Allow access to the Tripal CV Browser administration page.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ *
+ * Specifies menu items and URLs used by this module.
+ *
+ * @see https://api.drupal.org/api/drupal/modules%21system%21system.api.php/function/hook_menu/7.x
+ *
+ * @ingroup tripal_cvb
+ */
+function tripal_cvb_menu() {
+  $items = array();
+
+  $items['tripal/cvbrowser/%/%'] = array(
+    'title' => 'CV Browser',
+    'description' => 'CV Browser page.',
+    'page callback' => 'tripal_cvb_browser_render',
+    'page arguments' => array(2, 3),
+    'access callback' => 'user_access',
+    'access arguments' => array('use tripal cv browser'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['tripal/cvb/cvterm/%'] = array(
+    'title' => 'CV term info',
+    'description' => 'Provides an JSON hash of cvterm details.',
+    'page callback' => 'tripal_cvb_get_cvterm_info_json',
+    'page arguments' => array(3),
+    'access callback' => 'user_access',
+    'access arguments' => array('use tripal cv browser'),
+    'type' =>  MENU_CALLBACK,
+  );
+
+  $items['tripal/cvb/cvterm/%/children'] = array(
+    'title' => 'CV term children',
+    'description' => 'Provides an JSON hash of cvterm children.',
+    'page callback' => 'tripal_cvb_get_cvterm_children_json',
+    'page arguments' => array(3),
+    'access callback' => 'user_access',
+    'access arguments' => array('use tripal cv browser'),
+    'type' =>  MENU_CALLBACK,
+  );
+  
+  // Configuration page.
+  $items['admin/tripal/extension/tripal_cvb'] = array(
+    'title' => 'Tripal CV Browser',
+    'description' => 'Tripal CV Browser extension module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_cvb_admin_form', array()),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer tripal cv browser'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/tripal/extension/tripal_cvb/configuration'] = array(
+    'title' => 'Settings',
+    'description' => 'Tripal CV Browser extension module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tripal_cvb_admin_form', array()),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer tripal cv browser'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+
+  // Help page based using theme/templates/tripal_cvb_help.tpl.php file.
+  $items['admin/tripal/extension/tripal_cvb/help'] = array(
+    'title' => 'Help',
+    'description' => 'Tripal CV Browser Administration Help',
+    'page callback' => 'theme',
+    'page arguments' => array('tripal_cvb_help', array()),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer tripal cv browser'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * We need to let Drupal know about our theme functions and their arguments.
+ * We create theme functions to allow users of the module to customize the look
+ * and feel of the output generated in this module.
+ *
+ * @ingroup tripal_cvb
+ */
+function tripal_cvb_theme($existing, $type, $theme, $path) {
+    
+  $items = array(
+    'tripal_cvbrowser' => array(
+      'template' => 'tripal_cvbrowser',
+      'variables' =>  array(),
+      'path' => "$path/theme/templates",
+    ),
+    // The help template.
+    'tripal_cvb_help' => array(
+      'template' => 'tripal_cvb_help',
+      'variables' => array(NULL),
+      'path' => "$path/theme/templates",
+    ),
+  );
+ 
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ *
+ * @ingroup tripal_cvb
+ */
+function tripal_cvb_help($path, $arg) {
+  if ($path == 'admin/help#tripal_cvb') {
+    return theme('tripal_cvb_help', array());
+  }
+}

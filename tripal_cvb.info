@@ -1,0 +1,16 @@
+name = Tripal CV Browser
+description = Display a browsable tree representing a given controlled vocabulary.
+core = 7.x
+project = tripal_cvb
+package = Tripal Extensions
+version = 7.x-2.0
+dependencies[] = tripal_core
+dependencies[] = tripal_db
+dependencies[] = tripal_cv
+dependencies[] = jquery_update
+
+scripts[] = /theme/js/tripal_cvb.js
+
+stylesheets[all][] = /theme/css/tripal_cvb.css
+
+; files[] = tripal_cvb.test

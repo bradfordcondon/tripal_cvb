@@ -1,0 +1,51 @@
+/**
+ * CV Browser styles
+ */
+.tripal-cvb ul.tripal-cvb {
+  margin: 0;
+  padding: 0 0 0.3em 1.5em;
+  list-style-type: none;
+}
+
+ul.tripal-cvb li.tripal-cvb-collapsed {
+  list-style-image: url(../../../../../../../misc/menu-collapsed.png);
+  list-style-type: disc;
+}
+
+ul.tripal-cvb li.tripal-cvb-expanded {
+  list-style-image: url(../../../../../../../misc/menu-expanded.png);
+  list-style-type: circle;
+}
+
+ul.tripal-cvb li.tripal-cvb-leaf {
+  list-style-image: url(../../../../../../../misc/menu-leaf.png);
+  list-style-type: square;
+}
+
+.tripal-cvb-obsolete {
+  text-decoration: line-through;
+}
+
+.tripal-cvb-has-children:hover {
+  cursor: pointer;
+}
+
+.tripal-cvb-leaf:hover {
+  cursor: default;
+}
+
+/**
+ * Relationship styles.
+ */
+.tripal-cvb-relationship-is_a >.tripal-cvb-cvterm:before {
+  color: green;
+  content: "[is a]";
+  padding-right: 1ex;
+}
+
+.tripal-cvb-relationship-part_of >.tripal-cvb-cvterm:before {
+  color: blue;
+  content: "[part of]";
+  padding-right: 1ex;
+}
+

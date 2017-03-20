@@ -1,0 +1,262 @@
+<?php
+
+/**
+ * @file
+ * An example of simpletest tests to accompany the tutorial at
+ * http://drupal.org/node/890654.
+ */
+
+module_load_include('php', 'tripal_core_test', 'tripal_test_case');
+
+/**
+ * The SimpleTestExampleTestCase is a functional test case, meaning that it
+ * actually exercises a particular sequence of actions through the web UI.
+ * The majority of core test cases are done this way, but the SimpleTest suite
+ * also provides unit tests as demonstrated in the unit test case example later
+ * in this file.
+ *
+ * Functional test cases are far slower to execute than unit test cases because
+ * they require a complete Drupal install to be done for each test.
+ *
+ * @see DrupalWebTestCase
+ * @see SimpleTestUnitTestExampleTestCase
+ *
+ * @ingroup simpletest_example
+ */
+class TripalDtTestCase extends TripalTestCase {
+
+  /**
+   * Give display information to the SimpleTest system.
+   *
+   * getInfo() returns a keyed array of information for SimpleTest to show.
+   *
+   * It's a good idea to organize your tests consistently using the 'group'
+   * key.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Tripal Demo Tree Functional Tests',
+      'description' => 'Ensure that the demo tree works properly.',
+      'group' => 'Tripal Demo Tree',
+    );
+  }
+
+  /**
+   * Set up the test environment.
+   *
+   * This method is called once per test method, before the test is executed.
+   * It gives you a chance to control the setup of the test environment.
+   *
+   * If you need a different test environment, then you should create another
+   * test class which overloads DrupalWebTestCase::setUp() differently.
+   *
+   * @see DrupalWebTestCase::setUp()
+   */
+  public function setUp() {
+
+    parent::setUp();
+
+    // Enable the demo tree module.
+    module_enable(array('tripal_cvb'), TRUE);
+    // Rebuild menu so the new demo tree page is taken into account.
+    menu_rebuild();
+
+    // Insert default data.
+    $this->initDemoTreeDataset();
+  }
+
+  /**
+   * Test dataset.
+   */
+  protected function initDemoTreeDataset() {
+    // Insert testing dataset.
+    $insert_tree_sql = "INSERT INTO {phylotree} VALUES
+      (1,  1, 'Banana testing tree', 1, NULL, 'A tree for testing.');";
+
+    $insert_nodes_sql = "INSERT INTO {phylonode} VALUES
+      (1, 1, NULL, 1, 14, 1, NULL, 'Musaceae', NULL),
+      (2, 1, 1, 2, 9, 1, NULL, 'Musa', NULL),
+      (3, 1, 1, 10, 13, 1, NULL, 'Ensete', NULL),
+      (4, 1, 2, 3, 8, 1, NULL, 'Eumusa', NULL),
+      (5, 1, 4, 4, 5, 1, NULL, 'acuminata', NULL),
+      (6, 1, 4, 6, 7, 1, NULL, 'balbisiana', NULL),
+      (7, 1, 3, 11, 12, 1, NULL, 'lasiocarpa', NULL);";
+
+    chado_query($insert_tree_sql);
+    chado_query($insert_nodes_sql);
+
+    // The following code could also be used for data initialization:
+    // @code
+    // // We need to initialize sequences even if we specify the IDs otherwise
+    // // PostgreSQL will complain the sequence is not initialized.
+    // $chado_schema = tripal_get_schema_name('chado');
+    // chado_query("SELECT setval('$chado_schema.phylotree_phylotree_id_seq', 1);");
+    // chado_query("SELECT setval('$chado_schema.phylonode_phylonode_id_seq', 1);");
+    //
+    // // Insert tree
+    // $phylotree =  array(
+    //   'phylotree_id' => 1,
+    //   'dbxref_id'    => 1,
+    //   'name'         => 'Banana testing tree',
+    //   'type_id'      => 1,
+    //   'analysis_id'  => NULL,
+    //   'comment'      => 'A tree for testing.',
+    // );
+    // $result = chado_insert_record('phylotree', $phylotree);
+    //
+    // $phylonodes =  array(
+    //   array(
+    //     'phylonode_id'        => 1,
+    //     'phylotree_id'        => 1,
+    //     'parent_phylonode_id' => NULL,
+    //     'left_idx'            => 1,
+    //     'right_idx'           => 14,
+    //     'type_id'             => 1,
+    //     'feature_id'          => NULL,
+    //     'label'               => 'Musaceae',
+    //     'distance'            => NULL,
+    //   ),
+    //   array(
+    //     'phylonode_id'        => 2,
+    //     'phylotree_id'        => 1,
+    //     'parent_phylonode_id' => 1,
+    //     'left_idx'            => 2,
+    //     'right_idx'           => 9,
+    //     'type_id'             => 1,
+    //     'feature_id'          => NULL,
+    //     'label'               => 'Musa',
+    //     'distance'            => NULL,
+    //   ),
+    //   array(
+    //     'phylonode_id'        => 3,
+    //     'phylotree_id'        => 1,
+    //     'parent_phylonode_id' => 1,
+    //     'left_idx'            => 10,
+    //     'right_idx'           => 13,
+    //     'type_id'             => 1,
+    //     'feature_id'          => NULL,
+    //     'label'               => 'Ensete',
+    //     'distance'            => NULL,
+    //   ),
+    //   array(
+    //     'phylonode_id'        => 4,
+    //     'phylotree_id'        => 1,
+    //     'parent_phylonode_id' => 2,
+    //     'left_idx'            => 3,
+    //     'right_idx'           => 8,
+    //     'type_id'             => 1,
+    //     'feature_id'          => NULL,
+    //     'label'               => 'Eumusa',
+    //     'distance'            => NULL,
+    //   ),
+    //   array(
+    //     'phylonode_id'        => 5,
+    //     'phylotree_id'        => 1,
+    //     'parent_phylonode_id' => 4,
+    //     'left_idx'            => 4,
+    //     'right_idx'           => 5,
+    //     'type_id'             => 1,
+    //     'feature_id'          => NULL,
+    //     'label'               => 'acuminata',
+    //     'distance'            => NULL,
+    //   ),
+    //   array(
+    //     'phylonode_id'        => 6,
+    //     'phylotree_id'        => 1,
+    //     'parent_phylonode_id' => 4,
+    //     'left_idx'            => 6,
+    //     'right_idx'           => 7,
+    //     'type_id'             => 1,
+    //     'feature_id'          => NULL,
+    //     'label'               => 'balbisiana',
+    //     'distance'            => NULL,
+    //   ),
+    //   array(
+    //     'phylonode_id'        => 7,
+    //     'phylotree_id'        => 1,
+    //     'parent_phylonode_id' => 3,
+    //     'left_idx'            => 11,
+    //     'right_idx'           => 12,
+    //     'type_id'             => 1,
+    //     'feature_id'          => NULL,
+    //     'label'               => 'lasiocarpa',
+    //     'distance'            => NULL,
+    //   ),
+    // );
+    // foreach ($phylonodes as $phylonode) {
+    //   $result = chado_insert_record('phylonode', $phylonode);
+    // }
+    // @endcode
+  }
+
+  /**
+   * Test dataset.
+   */
+  protected function runTestDemoTreeDataset() {
+    $this->verbose("Testing demo tree dataset.");
+
+    // Check data insertion.
+    // First, phylotree.
+    $result = chado_query("SELECT * FROM {phylotree};");
+    $phylotree = $result->fetchObject();
+    $this->assertTrue($phylotree, 'Phylotree inserted correctly.');
+    $this->assertEqual(
+      $phylotree->phylotree_id,
+      1,
+      'First tree has phylotree_id 1.'
+    );
+    // Then phylonodes.
+    $result = chado_query("SELECT * FROM {phylonode};");
+    $node_count = 0;
+    foreach ($result as $phylonode) {
+      $this->assertEqual(
+        $phylonode->phylotree_id,
+        $phylotree->phylotree_id,
+        'Phylonode ' . $phylonode->phylonode_id . ' belongs to phylotree 1.'
+      );
+      ++$node_count;
+    }
+    $this->assertEqual($node_count, 7, 'All testing nodes have been inserted correctly.');
+  }
+
+  /**
+   * Test settings.
+   */
+  protected function runTestDemoTreeSettings() {
+    $this->verbose("Testing demo tree settings.");
+
+    // Check module installation.
+    $result = db_query("SELECT * FROM {menu_links} WHERE link_path = 'tripal_cvb';");
+    $menu_link = $result->fetchObject();
+    $this->assertTrue($menu_link, 'Menu item inserted correctly.');
+  }
+
+  /**
+   * Test demo tree page.
+   */
+  protected function runTestDemoTreePage() {
+    // Check tree page content.
+    $this->drupalGet('tripal_cvb');
+    $this->assertResponse(200, 'Demo tree page exists.');
+    $this->assertRaw('tripal_cvb/theme/js/d3.min.js', 'D3 JS script loaded.', 'JS');
+    $this->assertRaw('tripal_cvb/theme/js/d3.dndtree.js', 'D3 JS drag\'n drop tree script loaded.', 'JS');
+    $this->assertText('Tree raw data', 'Tree raw data section exists.', 'Tree raw data');
+    $this->assertRaw('<td>1</td><td></td><td>Musaceae</td>', 'Tree raw data displayed', 'Tree raw data');
+    $this->assertText('Tree JSON structure', 'Tree JSON structure section exists.', 'Tree JSON');
+    $this->assertText('"name": "Musaceae",', 'Tree JSON data displayed', 'Tree JSON');
+    $this->assertRaw('<div id="tripal_cvb_tree">', 'Tree SVG area exists.', 'Tree SVG');
+  }
+
+  /**
+   * Runs all tests.
+   *
+   * Since we don't modify our initial dataset, we can runs all tests at once so
+   * we will not have to instantiate and remove Chado several times (we save a
+   *   lot of time!).
+   */
+  public function testDemoTree() {
+    $this->runTestDemoTreeDataset();
+    $this->runTestDemoTreeSettings();
+    $this->runTestDemoTreePage();
+  }
+}
