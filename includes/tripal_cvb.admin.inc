@@ -30,11 +30,11 @@ function tripal_cvb_admin_form($form, &$form_state) {
   
   /*
   -create browser settings:
-    -()cv ()cvterm
-    -cv/cvterm/name(s)/identifier(s)
-    -title
-    -block name/machine name
-    -owner
+    -()cv ()cvterm  --> root_type
+    -cv/cvterm/name(s)/identifier(s)  --> root_ids
+    -title --> title
+    -block name/machine name --> machine_name
+    -owner --> uid
     -permissions
     -ordered actions
 
@@ -102,6 +102,8 @@ function tripal_cvb_admin_add_page() {
       'title' => 'CV Browser',
       'machine_name' => '',
       'description' => '',
+      'root_type' => 'cvterm',
+      'root_ids' => '',
       'uid' => $user->uid,
       'type' => 'tripal_cvb',
     )
@@ -204,6 +206,24 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
       '#default_value' => $browser->description,
       // Last field after user association field.
       '#weight'        => 2,
+    ),
+    'root_type' => array(
+      '#type'          => 'select',
+      '#title'         => t('Root object type'),
+      '#description'   => t(''),
+      '#required'      => TRUE,
+      '#options'       => array(
+        'cvterm' => t('cvterm'),
+        'cv'     => t('cv'),
+      ),
+      '#default_value' => $browser->root_type,
+    ),
+    'root_ids' => array(
+      '#type'          => 'textfield',
+      '#title'         => t('Root object identifiers'),
+      '#description'   => t('Identifiers of CV or CV term object to use as tree browser root.'),
+      '#required'      => TRUE,
+      '#default_value' => $browser->root_ids,
     ),
     'uid' => array(
       '#type' => 'value',

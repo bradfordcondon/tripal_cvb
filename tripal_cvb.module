@@ -383,7 +383,7 @@ function tripal_cvb_block_view($delta = '') {
       $browser = current($browsers);
       if (!empty($browser)) {
         $block['subject'] = $browser->title;
-        $block['content'] = 'bla';
+        $block['content'] = tripal_cvb_browser_render($browser->root_type, $browser->root_ids);
       }
     }
   }

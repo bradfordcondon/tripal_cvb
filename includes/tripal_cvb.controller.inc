@@ -20,6 +20,8 @@ class TripalCVBrowserController extends EntityAPIControllerExportable {
       'title' => 'CV Browser',
       'machine_name' => '',
       'description' => '',
+      'root_type' => 'cvterm',
+      'root_ids' => '',
       'uid' => $user->uid,
       'type' => 'tripal_cvb',
     );
