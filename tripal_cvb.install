@@ -29,3 +29,91 @@ function tripal_cvb_uninstall() {
   // Clear Tripal CV Browser settings.
   variable_del('tripal_cvb_settings');
 }
+
+/**
+ * Implements hook_schema().
+ *
+ * Provides a list of tables to be created inside of the Drupal schema
+ * (the 'public' schema by default). It uses the Drupal Schema API
+ * array structure to define the table, its indexes and constraints.
+ *
+ * Schema API documentation is here:
+ * https://api.drupal.org/api/drupal/includes%21database%21schema.inc/group/schemaapi/7
+ *
+ * @ingroup tripal_mc
+ */
+function tripal_cvb_schema() {
+
+  // Setup table used to record connections.
+  $schema['tripal_cvb'] = array(
+    'description' => 'Stores CV Browser settings.',
+    'fields' => array(
+      'cvbid' => array(
+        'description' => 'Primary Key',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => "User's {users}.uid.",
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 'CV Browser',
+        'description' => 'CV Browser name for administrative uses.',
+        'translatable' => TRUE,
+      ),
+      'machine_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 'cv-browser',
+        'description' => 'CV Browser machine name for internal uses.',
+        'translatable' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'A brief description of this CV Browser.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+        'translatable' => TRUE,
+      ),
+      // Exportable stuff.
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'foreign keys' => array(
+      'mcc_author' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'unique keys' => array(
+      'tripal_cvb_cvbid_uq1' => array('cvbid'),
+    ),
+    'primary key' => array('cvbid'),
+    'indexes' => array(
+      'uid' => array('uid'),
+    ),
+  );
+
+  return $schema;
+}
