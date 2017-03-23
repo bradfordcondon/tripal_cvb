@@ -35,7 +35,6 @@ function tripal_cvb_admin_form($form, &$form_state) {
     -title --> title
     -block name/machine name --> machine_name
     -owner --> uid
-    -permissions
     -ordered actions
 
   -create action settings:
@@ -62,7 +61,11 @@ function tripal_cvb_admin_form($form, &$form_state) {
       target block name, otherwise content region (append)
     -link to parametrized URL + title + open full page
     -link to javascript call
-  
+
+tripal_cvb_cvterm_action:
+widget
+formatter
+
   */
 
   $form['save_settings'] = array(
@@ -145,32 +148,30 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
   // Substitute as appropriate.
   $langcode = LANGUAGE_NONE;
 
-  // // $items is used to provide default values for the field. You can set it to
-  // // NULL or an empty array if desired.
-  // $items = field_get_items($entity_type, $entity, TRIPAL_MC_ASSOCIATED_USER_FIELD);
-  // 
-  // // We need the field and field instance information to pass along to
-  // // field_default_form().
-  // $field = field_info_field(TRIPAL_MC_ASSOCIATED_USER_FIELD);
-  // $instance = field_info_instance(
-  //   $entity_type,
-  //   TRIPAL_MC_ASSOCIATED_USER_FIELD,
-  //   $bundle_name
-  // );
-  // 
-  // // This is where the cool stuff happens.
-  // $field_form = field_default_form(
-  //   $entity_type,
-  //   $entity,
-  //   $field,
-  //   $instance,
-  //   $langcode,
-  //   $items,
-  //   $form,
-  //   $form_state
-  // );
-  // // Before description field.
-  // $field_form[TRIPAL_MC_ASSOCIATED_USER_FIELD]['#weight'] = 9;
+  // $items is used to provide default values for the field. You can set it to
+  // NULL or an empty array if desired.
+  $items = field_get_items($entity_type, $entity, 'tripal_cvb_cvterm_action');
+  
+  // We need the field and field instance information to pass along to
+  // field_default_form().
+  $field = field_info_field('tripal_cvb_cvterm_action');
+  $instance = field_info_instance(
+    $entity_type,
+    'tripal_cvb_cvterm_action',
+    $bundle_name
+  );
+drupal_set_message('DEBUG: ' . print_r($instance, TRUE));
+  // This is where the cool stuff happens.
+  $field_form = field_default_form(
+    $entity_type,
+    $entity,
+    $field,
+    $instance,
+    $langcode,
+    $items,
+    $form,
+    $form_state
+  );
 
   // Machine name stuff.
   $machine_name_pattern = '[^0-9a-zA-Z-]+';
@@ -231,11 +232,11 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
     ),
   );
 
-  // // Adding it to the form.
-  // $form += $field_form;
+  // Adding it to the form.
+  $form += $field_form;
 
   field_attach_form(
-    'tripal_cvb_form',
+    'tripal_cvb',
     $browser,
     $form,
     $form_state

@@ -7,6 +7,7 @@ configure = admin/tripal/extension/tripal_cvb
 dependencies[] = tripal_core
 dependencies[] = tripal_db
 dependencies[] = tripal_cv
+dependencies[] = tripal_cvb_cvterm_action
 dependencies[] = jquery_update
 dependencies[] = entity
 

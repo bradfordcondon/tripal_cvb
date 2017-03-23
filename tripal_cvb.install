@@ -12,10 +12,63 @@
  */
 function tripal_cvb_install() {
   $t = get_t();
-  
+
   // Initializes Tripal CV Browser settings.
   $initial_tripal_cvb_cvb_settings = tripal_cvb_get_cv_settings(TRUE);
   variable_set('tripal_cvb_settings', $initial_tripal_cvb_cvb_settings);
+
+  // Make sure the field doesn't already exist.
+  if (!field_info_field('tripal_cvb_cvterm_action')) {
+    // Create the field.
+    $field = array(
+      'field_name' => 'tripal_cvb_cvterm_action',
+      'type' => 'tripal_cvb_cvterm_action',
+      'locked' => TRUE,
+      'settings' => array(),
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'deleted' => 0,
+      'module' => 'tripal_cvb_cvterm_action',
+      'translatable' => 0,
+    );
+    field_create_field($field);
+  }
+  if (!field_info_instance('tripal_cvb', 'tripal_cvb_cvterm_action', 'tripal_cvb')) {
+    // Create the instance.
+    $instance = array(
+      'field_name'  => 'tripal_cvb_cvterm_action',
+      'entity_type' => 'tripal_cvb',
+      'bundle'      => 'tripal_cvb',
+      'label'       => 'Actions',
+      'description' => 'Actions that can be performed on terms.',
+      'required'    => FALSE,
+      'default_value' => NULL,
+      'deleted'       => 0,
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'tripal_cvb_cvterm_action',
+          'settings' => array(),
+          'type' => 'tripal_cvb_cvterm_action',
+          'weight' => 1,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'settings' => array(),
+      'widget' => array(
+        'module' => 'tripal_cvb_cvterm_action',
+        'settings' => array(),
+        'type' => 'tripal_cvb_cvterm_action',
+        'weight' => 0,
+      ),
+    );
+    field_create_instance($instance);
+  }
+ 
 }
 
 /**
@@ -28,6 +81,24 @@ function tripal_cvb_uninstall() {
 
   // Clear Tripal CV Browser settings.
   variable_del('tripal_cvb_settings');
+  
+  try {
+    // $field_info = field_info_field('tripal_cvb_cvterm_action');
+    field_attach_delete_bundle('tripal_cvb', 'tripal_cvb');
+    // $field_instance = field_info_instance('tripal_cvb', 'tripal_cvb_cvterm_action', 'tripal_cvb');
+    // if ($field_instance) {
+    //   // field_delete_instance($field_instance, TRUE);
+    // }
+    field_delete_field('tripal_cvb_cvterm_action');
+  }
+  catch (Exception $e) {
+    drupal_set_message(
+      $e->getMessage(),
+      'warning'
+    );
+  }
+
+
 }
 
 /**
@@ -38,7 +109,7 @@ function tripal_cvb_uninstall() {
  * array structure to define the table, its indexes and constraints.
  *
  * Schema API documentation is here:
- * https://api.drupal.org/api/drupal/includes%21database%21schema.inc/group/schemaapi/7
+ * @see https://api.drupal.org/api/drupal/includes!database!schema.inc/group/schemaapi/7.x
  *
  * @ingroup tripal_mc
  */
@@ -85,7 +156,7 @@ function tripal_cvb_schema() {
       ),
       'root_type' => array(
         'type' => 'varchar',
-        'length' => 32,
+        'length' => 31,
         'not null' => TRUE,
         'default' => 'cvterm',
         'description' => 'CV Browser root object type.',
@@ -132,4 +203,52 @@ function tripal_cvb_schema() {
   );
 
   return $schema;
+}
+
+/**
+ * Implements hook_field_schema().
+ *
+ * @see https://api.drupal.org/api/drupal/modules%21field%21field.api.php/function/hook_field_schema/7.x
+ */
+function tripal_cvb_field_schema($field) {
+  $columns = array();
+  if ($field['type'] == 'tripal_cvb_cvterm_action') {
+    $columns = array(
+      'type' => array(
+        'type' => 'varchar',
+        'length' => 31,
+        'not null' => FALSE,
+      ),
+      'action' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'autorun' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'size' => 'tiny',
+        'default' => 0,
+      ),
+      'target' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'insert' => array(
+        'type' => 'varchar',
+        'length' => 31,
+        'not null' => FALSE,
+      ),
+    );
+  }
+
+  return array(
+    'columns' => $columns,
+  );
 }

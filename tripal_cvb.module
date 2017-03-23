@@ -9,8 +9,8 @@
 require_once 'api/tripal_cvb.api.php';
 require_once 'api/tripal_cvb.entity.api.php';
 require_once 'includes/tripal_cvb.admin.inc';
-require_once 'includes/tripal_cvb.controller.inc';
 require_once 'includes/tripal_cvb.entity.inc';
+require_once 'includes/tripal_cvb.controller.inc';
 require_once 'includes/tripal_cvb.pages.inc';
 require_once 'theme/tripal_cvb.theme.inc';
 
@@ -290,6 +290,22 @@ function tripal_cvb_entity_info() {
 }
 
 /**
+ * Implements hook_entity_info_alter().
+ */
+/*function tripal_cvb_entity_info_alter(&$entity_info) {
+  foreach (tripal_cvb_types() as $type => $info) {
+    $entity_info['tripal_cvb']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/structure/tripal_cvb-types/manage/%tripal_cvb_type',
+        'real path' => 'admin/structure/tripal-cvb-types/manage/' . $type,
+        'bundle argument' => 4,
+      ),
+    );
+  }
+}*/
+
+/**
  * Implements hook_entity_property_info_alter().
  *
  * Add multiple-user association to Chado connections.
@@ -310,22 +326,6 @@ function tripal_cvb_entity_property_info_alter(&$info) {
     );
   }
 }
-
-/**
- * Implements hook_entity_info_alter().
- */
-/*function tripal_cvb_entity_info_alter(&$entity_info) {
-  foreach (tripal_cvb_types() as $type => $info) {
-    $entity_info['tripal_cvb']['bundles'][$type] = array(
-      'label' => $info->label,
-      'admin' => array(
-        'path' => 'admin/structure/tripal_cvb-types/manage/%tripal_cvb_type',
-        'real path' => 'admin/structure/tripal-cvb-types/manage/' . $type,
-        'bundle argument' => 4,
-      ),
-    );
-  }
-}*/
 
 /**
  * Implements hook_page_title().
