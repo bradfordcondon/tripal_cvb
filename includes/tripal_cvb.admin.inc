@@ -160,7 +160,7 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
     'tripal_cvb_cvterm_action',
     $bundle_name
   );
-drupal_set_message('DEBUG: ' . print_r($instance, TRUE));
+
   // This is where the cool stuff happens.
   $field_form = field_default_form(
     $entity_type,

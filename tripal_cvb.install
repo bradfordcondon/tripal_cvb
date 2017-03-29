@@ -29,6 +29,7 @@ function tripal_cvb_install() {
       'deleted' => 0,
       'module' => 'tripal_cvb_cvterm_action',
       'translatable' => 0,
+      'entity_types' => array('tripal_cvb'),
     );
     field_create_field($field);
   }
@@ -203,52 +204,4 @@ function tripal_cvb_schema() {
   );
 
   return $schema;
-}
-
-/**
- * Implements hook_field_schema().
- *
- * @see https://api.drupal.org/api/drupal/modules%21field%21field.api.php/function/hook_field_schema/7.x
- */
-function tripal_cvb_field_schema($field) {
-  $columns = array();
-  if ($field['type'] == 'tripal_cvb_cvterm_action') {
-    $columns = array(
-      'type' => array(
-        'type' => 'varchar',
-        'length' => 31,
-        'not null' => FALSE,
-      ),
-      'action' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => FALSE,
-      ),
-      'title' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => FALSE,
-      ),
-      'autorun' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'size' => 'tiny',
-        'default' => 0,
-      ),
-      'target' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => FALSE,
-      ),
-      'insert' => array(
-        'type' => 'varchar',
-        'length' => 31,
-        'not null' => FALSE,
-      ),
-    );
-  }
-
-  return array(
-    'columns' => $columns,
-  );
 }
