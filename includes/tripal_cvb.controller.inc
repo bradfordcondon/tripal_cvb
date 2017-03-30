@@ -15,17 +15,18 @@ class TripalCVBrowserController extends EntityAPIControllerExportable {
    */
   public function create(array $values = array()) {
     global $user;
-    $values += array(
-      'cvbid' => '',
+    $init_values = array(
+      'cvbid' => 0,
       'title' => 'CV Browser',
       'machine_name' => '',
       'description' => '',
       'root_type' => 'cvterm',
-      'root_ids' => '',
+      'root_ids' => '0',
       'uid' => $user->uid,
       'type' => 'tripal_cvb',
     );
-    return parent::create($values);
+    $init_values += $values;
+    return parent::create($init_values);
   }
 
   /**

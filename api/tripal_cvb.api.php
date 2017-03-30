@@ -161,7 +161,7 @@ function tripal_cvb_get_cvterm_children_json($cvterm_id) {
  *
  * @param string $browser_type
  *   The type of object to browse. Supported types are 'cv' and 'cvterm'.
- * @param mixed $ids
+ * @param mixed $root_ids
  *   Single or multiple (array) Chado identifiers for the type of object 
  *   to browse.
  *
@@ -171,19 +171,52 @@ function tripal_cvb_get_cvterm_children_json($cvterm_id) {
  * @Throws Exception
  *   Throw an exception is the value type is not correct.
  */
-function tripal_cvb_browser_render($browser_type, $ids) {
+function tripal_cvb_cv_render($browser_type, $root_ids) {
 
-  if (!isset($ids)) {
-    $ids = array(0);
+  if (!isset($browser_type)) {
+    $browser_type = 'cv';
   }
-  if (!is_array($ids)) {
-    $ids = explode('+', $ids);
+  if (!isset($root_ids)) {
+    $root_ids = '';
+  }
+ 
+  $browser = entity_create(
+    'tripal_cvb',
+    array(
+      'root_type' => $browser_type,
+      'root_ids' => $root_ids,
+    )
+  );
+
+  return tripal_cvb_browser_render($browser);
+}
+
+/**
+ * Renders the CV Browser page.
+ *
+ * @param tripal_cvb $browser
+ *   A CV Browse object to render.
+ *
+ * @return string
+ *   The CV Browser page.
+ *
+ * @Throws Exception
+ *   Throw an exception is the value type is not correct.
+ */
+function tripal_cvb_browser_render($browser) {
+  $root_ids = $browser->root_ids;
+
+  if (!isset($root_ids)) {
+    $root_ids = array(0);
+  }
+  if (!is_array($root_ids)) {
+    $root_ids = explode('+', $root_ids);
   }
 
   // Separate litteral names and numeric identifiers.
   $selected_ids = array();
   $selected_names = array();
-  foreach ($ids as $id) {
+  foreach ($root_ids as $id) {
     if (preg_match('/^\d+$/', $id)) {
       $selected_ids[] = $id;
     }
@@ -191,7 +224,7 @@ function tripal_cvb_browser_render($browser_type, $ids) {
       $selected_names[] = $id;
     }
   }
-  
+
   // Make sure we got something.
   if (empty($selected_ids) && empty($selected_names)) {
     throw new Exception(t(
@@ -209,7 +242,7 @@ function tripal_cvb_browser_render($browser_type, $ids) {
   $values = array();
 
   // Check data type to build query.
-  switch ($browser_type) {
+  switch ($browser->root_type) {
     case 'cv':
       // We only want root terms of the given CVs.
       $where_clause[] = 'NOT EXISTS (
@@ -244,7 +277,7 @@ function tripal_cvb_browser_render($browser_type, $ids) {
       throw new Exception(t(
         "Unsupported object type @type!",
         array(
-          '@type' => check_plain($browser_type),
+          '@type' => check_plain($browser->root_type),
         )
       ));
       break;
@@ -278,6 +311,29 @@ function tripal_cvb_browser_render($browser_type, $ids) {
     $values
   );
 
-  return theme('tripal_cvbrowser', array('terms' => $term_records));
+  // Get actions.
+  $actions = array();
+  if (isset($browser->tripal_cvb_cvterm_action)
+      && isset($browser->tripal_cvb_cvterm_action[LANGUAGE_NONE])) {
+      $actions = $browser->tripal_cvb_cvterm_action[LANGUAGE_NONE];
+/*    foreach ($browser->tripal_cvb_cvterm_action[LANGUAGE_NONE] as $action) {
+
+                            [type] => view
+                            [action] => term_details:term_page
+                            [title] => details
+                            [autorun] => 1
+                            [target] => region:content
+                            [insert] => replace
+    }*/
+  }
+  
+  return theme(
+    'tripal_cvbrowser',
+    array(
+      'terms' => $term_records,
+      'browser' => $browser,
+      'actions' => $actions,
+    )
+  );
 }
 

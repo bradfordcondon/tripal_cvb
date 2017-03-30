@@ -53,7 +53,7 @@ function tripal_cvb_menu() {
   $items['tripal/cvbrowser/%/%'] = array(
     'title' => 'CV Browser',
     'description' => 'Global CV Browser page. First argument is the object type (either "cv" or "cvterm") and second argument is the object ID(s) or name(s) (multiple values are separated by "+" signs).',
-    'page callback' => 'tripal_cvb_browser_render',
+    'page callback' => 'tripal_cvb_cv_render',
     'page arguments' => array(2, 3),
     'access callback' => 'user_access',
     'access arguments' => array('use tripal cv browser'),
@@ -354,7 +354,7 @@ function tripal_cvb_block_info() {
   if (!empty($results)) {
     $browsers = entity_load('tripal_cvb', array_keys($results['tripal_cvb']));
     foreach ($browsers as $cvbid => $browser) {
-      $blocks['tripal-cvb-' . $browser->machine_name] = array(
+      $blocks['tripal-cvb-block-' . $browser->machine_name] = array(
         'info' => 'Tripal CV browser: ' . $browser->title,
         'cache' => DRUPAL_CACHE_PER_ROLE,
       );
@@ -367,15 +367,20 @@ function tripal_cvb_block_info() {
 /**
  * Implements hook_block_view().
  *
- * Shows the current Chado schema name.
+ * Displays a CV Browser block.
  *
  * @ingroup tripal_cvb
  */
 function tripal_cvb_block_view($delta = '') {
-  if (preg_match('/^tripal-cvb-([\w\-]+)$/', $delta, $matches)) {
+  $block = array(
+    'subject' => 'CV Browser',
+    'content' => 'Browser not found.',
+  );
+  if (preg_match('/^tripal-cvb-block-([\w\-]+)$/', $delta, $matches)) {
+    $browser_machine_name = $matches[1];
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'tripal_cvb');
-    $query->propertyCondition('machine_name', $matches[1]);
+    $query->propertyCondition('machine_name', $browser_machine_name);
     $results = $query->execute();
 
     if (!empty($results)) {
@@ -383,7 +388,7 @@ function tripal_cvb_block_view($delta = '') {
       $browser = current($browsers);
       if (!empty($browser)) {
         $block['subject'] = $browser->title;
-        $block['content'] = tripal_cvb_browser_render($browser->root_type, $browser->root_ids);
+        $block['content'] = tripal_cvb_browser_render($browser);
       }
     }
   }
