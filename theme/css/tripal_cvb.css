@@ -1,5 +1,10 @@
 /**
- * CV Browser styles
+ * @file
+ * Tripal CV Browser CSS file.
+ */
+
+/**
+ * CV Browser styles.
  */
 .tripal-cvb ul.tripal-cvb {
   margin: 0;
@@ -48,4 +53,3 @@ ul.tripal-cvb li.tripal-cvb-leaf {
   content: "[part of]";
   padding-right: 1ex;
 }
-

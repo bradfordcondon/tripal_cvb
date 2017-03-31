@@ -19,71 +19,25 @@
 function tripal_cvb_admin_form($form, &$form_state) {
   $form = array();
 
+  // Displays "add" link.
+  $form['cvb_add'] = array(
+    '#markup' => l(t('Create a new CV Browser'), 'tripal_cvb/add'),
+  );
+
   // CV settings.
-  $form['cv_settings'] = array(
+  $form['cvb_settings'] = array(
     '#type'        => 'fieldset',
     '#attributes'  => array('class' => array('container-inline')),
-    '#title'       => t('Controlled vocabulary settings'),
+    '#title'       => t('Available CV browsers'),
     '#collapsible' => TRUE,
     '#collapsed'   => FALSE,
   );
   
-  /*
-  -create browser settings:
-    -()cv ()cvterm  --> root_type
-    -cv/cvterm/name(s)/identifier(s)  --> root_ids
-    -title --> title
-    -block name/machine name --> machine_name
-    -owner --> uid
-    -ordered actions
-
-  -create action settings:
-    -() view
-      -view name
-      -display name
-      -[]autoload
-      -link title
-    -() Drupal path
-      -path
-      -[]autoload
-      -link title
-      -()append ()replace
-      -after term/target region
-    -() External URL
-      -URL
-      -link title
-    -() Javascript call
-      -function name
-  -examples actions:
-    -link term to AJAX views: if title, then "on click", otherwise "autoload"
-    -link to parametrized drupal path:
-      if title, then "on click", otherwise "autoload"
-      target block name, otherwise content region (append)
-    -link to parametrized URL + title + open full page
-    -link to javascript call
-
-tripal_cvb_cvterm_action:
-widget
-formatter
-
-  */
-
-  $form['save_settings'] = array(
-    '#type'        => 'submit',
-    '#value'       => t('Save configuration'),
-    '#submit'      => array('tripal_cvb_admin_form_submit'),
+  $form['cvb_settings']['cvbrowser_list'] = array(
+    '#markup' => entity_ui_controller('tripal_cvb')->overviewTable(),
   );
-
+  
   return $form;
-}
-
-/**
- * Check and applies Tripal CV Browser configuration changes.
- *
- * @ingroup tripal_cvb
- */
-function tripal_cvb_admin_form_submit($form_id, &$form_state) {
-
 }
 
 /**

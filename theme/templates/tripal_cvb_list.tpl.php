@@ -10,12 +10,12 @@
 $cvb_table = $variables['cvb_table'];
 $pager = $variables['pager'];
 if ($cvb_table) {
-  ?>
+?>
 <div class="tripal_cvb-data-block-desc tripal-data-block-desc">
   This is the list of available CV browsers.
 </div>
 <br/>
-  <?php
+<?php
   print $cvb_table;
   print $pager;
 }

@@ -2,8 +2,7 @@
 
 /**
  * @file
- * This file contains all Drupal hooks implementations.
- *
+ * This file contains all Drupal hooks implementations for Tripal CV browser.
  */
 
 require_once 'api/tripal_cvb.api.php';
@@ -27,7 +26,7 @@ function tripal_cvb_permission() {
 
   return array(
     'use tripal cv browser' => array(
-      'title' => t('use tripal cv browser page'),
+      'title' => t('Use tripal cv browser page'),
       'description' => t('Allow users to access to the global Tripal CV Browser page that can browse any CV or term.'),
     ),
     'administer tripal cv browser' => array(
@@ -68,7 +67,7 @@ function tripal_cvb_menu() {
     'page arguments' => array(3),
     'access callback' => 'user_access',
     'access arguments' => array('use tripal cv browser'),
-    'type' =>  MENU_CALLBACK,
+    'type' => MENU_CALLBACK,
   );
 
   // Retruns a CV term children details as JSON.
@@ -79,9 +78,9 @@ function tripal_cvb_menu() {
     'page arguments' => array(3),
     'access callback' => 'user_access',
     'access arguments' => array('use tripal cv browser'),
-    'type' =>  MENU_CALLBACK,
+    'type' => MENU_CALLBACK,
   );
-  
+
   // Configuration page.
   $items['admin/tripal/extension/tripal_cvb'] = array(
     'title' => 'Tripal CV Browser',
@@ -144,7 +143,11 @@ function tripal_cvb_menu() {
     'page callback' => 'tripal_cvb_view',
     'page arguments' => array($tripal_cvb_uri_argument_position),
     'access callback' => 'entity_access',
-    'access arguments' => array('view', 'tripal_cvb', $tripal_cvb_uri_argument_position),
+    'access arguments' => array(
+      'view',
+      'tripal_cvb',
+      $tripal_cvb_uri_argument_position,
+    ),
     'file' => 'includes/tripal_cvb.pages.inc',
   );
 
@@ -159,45 +162,37 @@ function tripal_cvb_menu() {
     'title callback' => 'tripal_cvb_label',
     'title arguments' => array($tripal_cvb_uri_argument_position),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('tripal_cvb_delete_form', $tripal_cvb_uri_argument_position),
+    'page arguments' => array(
+      'tripal_cvb_delete_form',
+      $tripal_cvb_uri_argument_position,
+    ),
     'access callback' => 'entity_access',
-    'access arguments' => array('edit', 'tripal_cvb', $tripal_cvb_uri_argument_position),
+    'access arguments' => array(
+      'edit',
+      'tripal_cvb',
+      $tripal_cvb_uri_argument_position,
+    ),
     'file' => 'includes/tripal_cvb.admin.inc',
   );
 
   $items[$tripal_cvb_uri . '/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('tripal_cvb_form', $tripal_cvb_uri_argument_position),
+    'page arguments' => array(
+      'tripal_cvb_form',
+      $tripal_cvb_uri_argument_position,
+    ),
     'access callback' => 'entity_access',
-    'access arguments' => array('edit', 'tripal_cvb', $tripal_cvb_uri_argument_position),
+    'access arguments' => array(
+      'edit',
+      'tripal_cvb',
+      $tripal_cvb_uri_argument_position,
+    ),
     'file' => 'includes/tripal_cvb.admin.inc',
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
 
-/*  foreach (tripal_cvb_types() as $type => $info) {
-    $items['tripal_cvb/add/' . $type] = array(
-      'title' => 'Add Tripal CV Browser',
-      'page callback' => 'tripal_cvb_add',
-      'page arguments' => array(2),
-      'access callback' => 'entity_access',
-      'access arguments' => array('create', 'tripal_cvb', $type),
-      'file' => 'includes/tripal_cvb.admin.inc',
-    );
-  }
-
-  $items['admin/structure/tripal_cvb-types/%tripal_cvb_type/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('tripal_cvb_type_form_delete_confirm', 4),
-    'access arguments' => array('administer tripal_cvb types'),
-    'weight' => 1,
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'includes/tripal_cvb.admin.inc',
-  );
-*/
-  
   return $items;
 }
 
@@ -211,11 +206,11 @@ function tripal_cvb_menu() {
  * @ingroup tripal_cvb
  */
 function tripal_cvb_theme($existing, $type, $theme, $path) {
-    
+
   $items = array(
     'tripal_cvbrowser' => array(
       'template' => 'tripal_cvbrowser',
-      'variables' =>  array(),
+      'variables' => array(),
       'path' => "$path/theme/templates",
     ),
     // The help template.
@@ -227,10 +222,10 @@ function tripal_cvb_theme($existing, $type, $theme, $path) {
     'tripal_cvb_list' => array(
       'variables' => array('cvb_table' => NULL),
       'template' => 'tripal_cvb_list',
-      'path'      => "$path/theme/templates",
+      'path' => "$path/theme/templates",
     ),
   );
- 
+
   return $items;
 }
 
@@ -266,22 +261,22 @@ function tripal_cvb_entity_info() {
         'name' => 'machine_name',
         'label' => 'title',
       ),
-      'fieldable'        => TRUE,
-      'exportable'       => TRUE,
+      'fieldable' => TRUE,
+      'exportable' => TRUE,
 
-      'admin ui'         => array(
-        'path'             => 'admin/content/tripal_cvb',
+      'admin ui' => array(
+        'path' => 'admin/content/tripal_cvb',
         'controller class' => 'TripalCVBrowserUIController',
-        'file'             => 'includes/tripal_cvb.ui_controller.inc',
+        'file' => 'includes/tripal_cvb.ui_controller.inc',
       ),
-      'access callback'  => 'tripal_cvb_access',
-      'module'           => 'tripal_cvb',
-      'view modes'       => array(
+      'access callback' => 'tripal_cvb_access',
+      'module' => 'tripal_cvb',
+      'view modes' => array(
         'default' => array(
           'label'           => t('Chado CV Browser details'),
         ),
-        'full'    => array(
-          'label'           => t('Full Chado CV Browser details'),
+        'full' => array(
+          'label' => t('Full Chado CV Browser details'),
           'custom settings' => FALSE,
         ),
       ),
@@ -290,27 +285,11 @@ function tripal_cvb_entity_info() {
 }
 
 /**
- * Implements hook_entity_info_alter().
- */
-/*function tripal_cvb_entity_info_alter(&$entity_info) {
-  foreach (tripal_cvb_types() as $type => $info) {
-    $entity_info['tripal_cvb']['bundles'][$type] = array(
-      'label' => $info->label,
-      'admin' => array(
-        'path' => 'admin/structure/tripal_cvb-types/manage/%tripal_cvb_type',
-        'real path' => 'admin/structure/tripal-cvb-types/manage/' . $type,
-        'bundle argument' => 4,
-      ),
-    );
-  }
-}*/
-
-/**
  * Implements hook_entity_property_info_alter().
  *
  * Add multiple-user association to Chado connections.
  *
- * @ingroup tripal_mc
+ * @ingroup tripal_cvb
  */
 function tripal_cvb_entity_property_info_alter(&$info) {
   $properties = &$info['tripal_cvb']['properties'];
@@ -341,7 +320,6 @@ function tripal_cvb_page_title($cv_browser) {
 /**
  * Implements hook_block_info().
  *
- *
  * @ingroup tripal_cvb
  */
 function tripal_cvb_block_info() {
@@ -354,7 +332,7 @@ function tripal_cvb_block_info() {
   if (!empty($results)) {
     $browsers = entity_load('tripal_cvb', array_keys($results['tripal_cvb']));
     foreach ($browsers as $cvbid => $browser) {
-      $blocks['tripal-cvb-block-' . $browser->machine_name] = array(
+      $blocks[substr('tripal-cvb-blk-' . $browser->machine_name, 0, 31)] = array(
         'info' => 'Tripal CV browser: ' . $browser->title,
         'cache' => DRUPAL_CACHE_PER_ROLE,
       );
@@ -376,7 +354,7 @@ function tripal_cvb_block_view($delta = '') {
     'subject' => 'CV Browser',
     'content' => 'Browser not found.',
   );
-  if (preg_match('/^tripal-cvb-block-([\w\-]+)$/', $delta, $matches)) {
+  if (preg_match('/^tripal-cvb-blk-([\w\-]+)$/', $delta, $matches)) {
     $browser_machine_name = $matches[1];
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'tripal_cvb');

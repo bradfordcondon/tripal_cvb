@@ -1,8 +1,9 @@
 <?php
-/**
- *
- */
 
+/**
+ * @file
+ * Install file for Tripal CV browser action field.
+ */
 
 /**
  * Implements hook_field_schema().

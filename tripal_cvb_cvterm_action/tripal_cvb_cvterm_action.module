@@ -1,5 +1,8 @@
 <?php
+
 /**
+ * @file
+ * Module file for Tripal CV browser action field.
  *
  * @see https://api.drupal.org/api/drupal/modules%21field%21field.module/group/field/7.x
  */
@@ -30,7 +33,7 @@ function tripal_cvb_cvterm_action_field_info() {
  */
 function tripal_cvb_cvterm_action_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
   foreach ($items as $delta => $item) {
-    //+FIXME: add stuff
+    // @todo: add stuff.
     if (!empty($item['action'])) {
       if (!preg_match('/^[\w]+$/', $item['action'])) {
         $errors[$field['field_name']][$langcode][$delta][] = array(
@@ -71,7 +74,6 @@ function tripal_cvb_cvterm_action_field_formatter_info() {
  * @see https://api.drupal.org/api/drupal/modules%21field%21field.api.php/function/hook_field_formatter_view/7.x
  */
 function tripal_cvb_cvterm_action_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-// drupal_set_message('DEBUG view: ' . print_r($field, TRUE) . ': ' . print_r($instance, TRUE) . ': ' . print_r($items, TRUE)); //+debug
   $element = array();
 
   switch ($display['type']) {
@@ -140,7 +142,6 @@ function tripal_cvb_cvterm_action_field_widget_info() {
  * @see https://api.drupal.org/api/drupal/modules!field!field.api.php/function/hook_field_widget_form/7.x
  */
 function tripal_cvb_cvterm_action_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-// drupal_set_message('DEBUG widgetf: ' . print_r($element, TRUE)); //+debug
   // Get previous values.
   $type = isset($items[$delta]['type']) ? $items[$delta]['type'] : 'view';
   $action = isset($items[$delta]['action']) ? $items[$delta]['action'] : '';
@@ -170,9 +171,6 @@ function tripal_cvb_cvterm_action_field_widget_form(&$form, &$form_state, $field
         '#type' => 'fieldset',
         '#element_validate' => array('tripal_cvb_action_element_validate'),
         '#delta' => $delta,
-        // '#attached' => array(
-        //   'css' => array(drupal_get_path('module', 'tripal_cvb') . '/theme/css/tripal_cvb.css'),
-        // ),
       );
 
       $element['type'] = array(
@@ -276,22 +274,22 @@ function tripal_cvb_action_element_validate($element, &$form_state) {
     }
   }
 
-  // save target
+  // Save target.
   if (isset($form_state['values'][$field_name][$element['#language']][$delta]['target_type'])
       && isset($form_state['values'][$field_name][$element['#language']][$delta]['target_id'])) {
     $value =
       $form_state['values'][$field_name][$element['#language']][$delta]['target_type']
       . ':'
       . $form_state['values'][$field_name][$element['#language']][$delta]['target_id'];
-      $target = array(
-        '#parents' => array(
-          'tripal_cvb_cvterm_action',
-          $element['#language'],
-          $delta,
-          'target',
-        )
-      );
-      form_set_value($target, $value, $form_state);
+    $target = array(
+      '#parents' => array(
+        'tripal_cvb_cvterm_action',
+        $element['#language'],
+        $delta,
+        'target',
+      ),
+    );
+    form_set_value($target, $value, $form_state);
   }
 }
 

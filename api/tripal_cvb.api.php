@@ -179,14 +179,30 @@ function tripal_cvb_cv_render($browser_type, $root_ids) {
   if (!isset($root_ids)) {
     $root_ids = '';
   }
- 
-  $browser = entity_create(
-    'tripal_cvb',
-    array(
-      'root_type' => $browser_type,
-      'root_ids' => $root_ids,
-    )
-  );
+
+  if ('browser' == $browser_type) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'tripal_cvb');
+    $query->propertyCondition('machine_name', $root_ids);
+    $results = $query->execute();
+    if (!empty($results)) {
+      $entities = entity_load('tripal_cvb', array(key($results['tripal_cvb'])));
+      $browser = current($entities);
+    }
+  }
+  else {
+    $browser = entity_create(
+      'tripal_cvb',
+      array(
+        'root_type' => $browser_type,
+        'root_ids' => $root_ids,
+      )
+    );
+  }
+
+  if (!isset($browser)) {
+    $browser = entity_create('tripal_cvb',array());
+  }
 
   return tripal_cvb_browser_render($browser);
 }

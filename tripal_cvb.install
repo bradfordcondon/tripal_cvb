@@ -1,9 +1,9 @@
 <?php
+
 /**
  * @file
  * Installation of the Tripal CV Browser module.
  */
-
 
 /**
  * Implements hook_install().
@@ -34,7 +34,7 @@ function tripal_cvb_install() {
     field_create_field($field);
   }
   if (!field_info_instance('tripal_cvb', 'tripal_cvb_cvterm_action', 'tripal_cvb')) {
-    // Create the instance.
+    // Create the field instance.
     $instance = array(
       'field_name'  => 'tripal_cvb_cvterm_action',
       'entity_type' => 'tripal_cvb',
@@ -69,7 +69,6 @@ function tripal_cvb_install() {
     );
     field_create_instance($instance);
   }
- 
 }
 
 /**
@@ -82,14 +81,9 @@ function tripal_cvb_uninstall() {
 
   // Clear Tripal CV Browser settings.
   variable_del('tripal_cvb_settings');
-  
+
   try {
-    // $field_info = field_info_field('tripal_cvb_cvterm_action');
     field_attach_delete_bundle('tripal_cvb', 'tripal_cvb');
-    // $field_instance = field_info_instance('tripal_cvb', 'tripal_cvb_cvterm_action', 'tripal_cvb');
-    // if ($field_instance) {
-    //   // field_delete_instance($field_instance, TRUE);
-    // }
     field_delete_field('tripal_cvb_cvterm_action');
   }
   catch (Exception $e) {
@@ -98,8 +92,6 @@ function tripal_cvb_uninstall() {
       'warning'
     );
   }
-
-
 }
 
 /**
@@ -109,10 +101,9 @@ function tripal_cvb_uninstall() {
  * (the 'public' schema by default). It uses the Drupal Schema API
  * array structure to define the table, its indexes and constraints.
  *
- * Schema API documentation is here:
  * @see https://api.drupal.org/api/drupal/includes!database!schema.inc/group/schemaapi/7.x
  *
- * @ingroup tripal_mc
+ * @ingroup tripal_cvb
  */
 function tripal_cvb_schema() {
 
@@ -142,7 +133,7 @@ function tripal_cvb_schema() {
       ),
       'machine_name' => array(
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 16,
         'not null' => TRUE,
         'default' => 'cv-browser',
         'description' => 'CV Browser machine name for internal uses.',

@@ -19,4 +19,3 @@ files[] = includes/tripal_cvb.ui_controller.inc
 scripts[] = /theme/js/tripal_cvb.js
 
 stylesheets[all][] = /theme/css/tripal_cvb.css
-
