@@ -50,13 +50,13 @@ function tripal_cvb_install() {
           'module' => 'tripal_cvb_cvterm_action',
           'settings' => array(),
           'type' => 'tripal_cvb_cvterm_action',
-          'weight' => 1,
+          'weight' => 5,
         ),
         'teaser' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => 5,
         ),
       ),
       'settings' => array(),
@@ -64,7 +64,7 @@ function tripal_cvb_install() {
         'module' => 'tripal_cvb_cvterm_action',
         'settings' => array(),
         'type' => 'tripal_cvb_cvterm_action',
-        'weight' => 0,
+        'weight' => 5,
       ),
     );
     field_create_instance($instance);

@@ -2,6 +2,8 @@
 
 /**
  * @file
+ * Administration forms.
+ *
  * Contains the functions used for administration of the Tripal CV Browser
  * module.
  *
@@ -32,11 +34,11 @@ function tripal_cvb_admin_form($form, &$form_state) {
     '#collapsible' => TRUE,
     '#collapsed'   => FALSE,
   );
-  
+
   $form['cvb_settings']['cvbrowser_list'] = array(
     '#markup' => entity_ui_controller('tripal_cvb')->overviewTable(),
   );
-  
+
   return $form;
 }
 
@@ -82,7 +84,7 @@ function tripal_cvb_admin_add_page() {
  * @see tripal_cvb_form_submit()
  * @see tripal_cvb_form_submit_delete()
  *
- * @ingroup forms
+ * @ingroup tripal_cvb
  */
 function tripal_cvb_form(array $form, array &$form_state, $browser) {
 
@@ -105,7 +107,7 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
   // $items is used to provide default values for the field. You can set it to
   // NULL or an empty array if desired.
   $items = field_get_items($entity_type, $entity, 'tripal_cvb_cvterm_action');
-  
+
   // We need the field and field instance information to pass along to
   // field_default_form().
   $field = field_info_field('tripal_cvb_cvterm_action');
@@ -139,6 +141,7 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
       '#required'      => TRUE,
       '#default_value' => $browser->title,
       '#field_suffix' => '<br/>',
+      '#weight'        => 0,
     ),
     'machine_name' => array(
       '#type' => 'machine_name',
@@ -152,26 +155,19 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
         'replace' => $machine_name_replacement,
       ),
       '#required'      => TRUE,
-    ),
-    'description' => array(
-      '#type'          => 'textarea',
-      '#title'         => t('CV Browser description'),
-      '#description'   => t('This field is for administration purpose only.'),
-      '#required'      => FALSE,
-      '#default_value' => $browser->description,
-      // Last field after user association field.
-      '#weight'        => 2,
+      '#weight'        => 1,
     ),
     'root_type' => array(
       '#type'          => 'select',
       '#title'         => t('Root object type'),
-      '#description'   => t(''),
+      '#description'   => t('Type of the root items which identifiers are specified below.'),
       '#required'      => TRUE,
       '#options'       => array(
         'cvterm' => t('cvterm'),
         'cv'     => t('cv'),
       ),
       '#default_value' => $browser->root_type,
+      '#weight'        => 2,
     ),
     'root_ids' => array(
       '#type'          => 'textfield',
@@ -179,10 +175,20 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
       '#description'   => t('Identifiers of CV or CV term object to use as tree browser root.'),
       '#required'      => TRUE,
       '#default_value' => $browser->root_ids,
+      '#weight'        => 3,
+    ),
+    'description' => array(
+      '#type'          => 'textarea',
+      '#title'         => t('CV Browser description'),
+      '#description'   => t('This field is for administration purpose only.'),
+      '#required'      => FALSE,
+      '#default_value' => $browser->description,
+      '#weight'        => 4,
     ),
     'uid' => array(
       '#type' => 'value',
       '#value' => $browser->uid,
+      '#weight'        => 6,
     ),
   );
 
@@ -221,8 +227,6 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
       '#submit' => array('tripal_cvb_form_submit_delete'),
     );
   }
-
-//  $form['#validate'][] = 'tripal_cvb_form_validate';
 
   return $form;
 }
@@ -339,7 +343,6 @@ function tripal_cvb_access($op, $browser, $account = NULL, $entity_type = NULL) 
           && ($browser->uid == $account->uid));
   }
 }
-
 
 /**
  * Callback to check if a browser machine name is already in use.

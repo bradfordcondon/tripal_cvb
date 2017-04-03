@@ -60,26 +60,26 @@ function tripal_cvb_get_cv_settings($reset = FALSE) {
 /**
  * Returns a list of children CV terms of the given CV term.
  *
+ * Outputs a JSON hash containing CV term children data associated by cvterm_id.
+ * Provided cvterm fields are:
+ *  * cvterm_id: Chado CV term cvterm_id;
+ *  * cv_id: Chado CV term cv_id;
+ *  * cv: CV term CV name;
+ *  * name: CV term name;
+ *  * definition: CV term definition;
+ *  * dbxref_id: Chado CV term dbxref_id;
+ *  * dbxref: Chado CV term accession on its database;
+ *  * db: Chado CV term database name;
+ *  * urlprefix: URL prefix to access term description on its associated
+ *    database (append the accession to access term);
+ *  * is_obsolete: if non-0 ("1"), term is considered as obsolete;
+ *  * is_relationshiptype: if non-0 ("1"), term is considered as qualifying a
+ *    relationship;
+ *  * relationship: relationship (name) with parent;
+ *  * children_count: number of children terms.
+ *
  * @param int $cvterm_id
  *   a Chado CV term identifier.
- * @return string
- *   a JSON hash containing CV term children data associated by cvterm_id.
- *   Provided cvterm fields are:
- *    * cvterm_id: Chado CV term cvterm_id;
- *    * cv_id: Chado CV term cv_id;
- *    * cv: CV term CV name;
- *    * name: CV term name;
- *    * definition: CV term definition;
- *    * dbxref_id: Chado CV term dbxref_id;
- *    * dbxref: Chado CV term accession on its database;
- *    * db: Chado CV term database name;
- *    * urlprefix: URL prefix to access term description on its associated
- *      database (append the accession to access term);
- *    * is_obsolete: if non-0 ("1"), term is considered as obsolete;
- *    * is_relationshiptype: if non-0 ("1"), term is considered as qualifying a
- *      relationship;
- *    * relationship: relationship (name) with parent;
- *    * children_count: number of children terms.
  */
 function tripal_cvb_get_cvterm_info_json($cvterm_id) {
 
@@ -90,11 +90,11 @@ function tripal_cvb_get_cvterm_info_json($cvterm_id) {
       'cvterm_id' => $cvterm_id,
     )
   );
-  
+
   if (is_array($cvterm_data)) {
     $cvterm_data = current($cvterm_data);
   }
-  
+
   drupal_json_output($cvterm_data);
 }
 
@@ -103,12 +103,13 @@ function tripal_cvb_get_cvterm_info_json($cvterm_id) {
  *
  * @param int $cvterm_id
  *   a Chado CV term identifier.
+ *
  * @return array
  *   an array of CVTerms.
  */
 function tripal_cvb_get_cvterm_children($cvterm_id) {
   $cvterm_data = array();
-  
+
   $sql_query = '
     SELECT
       cvt.cvterm_id,
@@ -123,7 +124,9 @@ function tripal_cvb_get_cvterm_children($cvterm_id) {
       cvt.is_obsolete,
       cvt.is_relationshiptype,
       cvtrcvt.name AS "relationship",
-      (SELECT COUNT(1) FROM cvterm_relationship cvtr2 WHERE cvtr2.object_id = cvtr.subject_id) AS "children_count"
+      (SELECT COUNT(1)
+       FROM cvterm_relationship cvtr2
+       WHERE cvtr2.object_id = cvtr.subject_id) AS "children_count"
     FROM cvterm cvt
       JOIN cvterm_relationship cvtr ON cvtr.subject_id = cvt.cvterm_id
       JOIN cvterm cvtrcvt ON cvtr.type_id = cvtrcvt.cvterm_id
@@ -136,21 +139,21 @@ function tripal_cvb_get_cvterm_children($cvterm_id) {
     $sql_query,
     array(':object_cvterm_id' => $cvterm_id)
   );
-  
+
   foreach ($relationship_records as $relationship) {
     $cvterm_data[$relationship->cvterm_id] = $relationship;
   }
-  
+
   return $cvterm_data;
 }
 
 /**
  * Returns a list of children CV terms of the given CV term.
  *
+ * Outputs a JSON hash containing CV term children data associated by cvterm_id.
+ *
  * @param int $cvterm_id
  *   a Chado CV term identifier.
- * @return string
- *   a JSON hash containing CV term children data associated by cvterm_id.
  */
 function tripal_cvb_get_cvterm_children_json($cvterm_id) {
   drupal_json_output(tripal_cvb_get_cvterm_children($cvterm_id));
@@ -162,13 +165,13 @@ function tripal_cvb_get_cvterm_children_json($cvterm_id) {
  * @param string $browser_type
  *   The type of object to browse. Supported types are 'cv' and 'cvterm'.
  * @param mixed $root_ids
- *   Single or multiple (array) Chado identifiers for the type of object 
+ *   Single or multiple (array) Chado identifiers for the type of object
  *   to browse.
  *
  * @return string
  *   The CV Browser page.
  *
- * @Throws Exception
+ * @throws Exception
  *   Throw an exception is the value type is not correct.
  */
 function tripal_cvb_cv_render($browser_type, $root_ids) {
@@ -201,7 +204,7 @@ function tripal_cvb_cv_render($browser_type, $root_ids) {
   }
 
   if (!isset($browser)) {
-    $browser = entity_create('tripal_cvb',array());
+    $browser = entity_create('tripal_cvb', array());
   }
 
   return tripal_cvb_browser_render($browser);
@@ -210,16 +213,16 @@ function tripal_cvb_cv_render($browser_type, $root_ids) {
 /**
  * Renders the CV Browser page.
  *
- * @param tripal_cvb $browser
- *   A CV Browse object to render.
+ * @param TripalCVBrowser $browser
+ *   A CV Browse object (tripal_cvb) to render.
  *
  * @return string
  *   The CV Browser page.
  *
- * @Throws Exception
+ * @throws Exception
  *   Throw an exception is the value type is not correct.
  */
-function tripal_cvb_browser_render($browser) {
+function tripal_cvb_browser_render(TripalCVBrowser $browser) {
   $root_ids = $browser->root_ids;
 
   if (!isset($root_ids)) {
@@ -296,7 +299,6 @@ function tripal_cvb_browser_render($browser) {
           '@type' => check_plain($browser->root_type),
         )
       ));
-      break;
   }
 
   $sql_query = '
@@ -313,14 +315,15 @@ function tripal_cvb_browser_render($browser) {
       cvt.is_obsolete,
       cvt.is_relationshiptype,
       NULL AS "relationship",
-      (SELECT COUNT(1) FROM cvterm_relationship cvtr2 WHERE cvtr2.object_id = cvt.cvterm_id) AS "children_count"
+      (SELECT COUNT(1)
+       FROM cvterm_relationship cvtr2
+       WHERE cvtr2.object_id = cvt.cvterm_id) AS "children_count"
     FROM cvterm cvt
       JOIN cv cv ON cv.cv_id = cvt.cv_id
       JOIN dbxref dbx ON dbx.dbxref_id = cvt.dbxref_id
       JOIN db db ON db.db_id = dbx.db_id'
-    . (empty($where_clause)?'':' WHERE ')
-    .  implode(' AND ', $where_clause);
-  ;
+    . (empty($where_clause) ? '' : ' WHERE ')
+    . implode(' AND ', $where_clause);
 
   $term_records = chado_query(
     $sql_query,
@@ -331,18 +334,9 @@ function tripal_cvb_browser_render($browser) {
   $actions = array();
   if (isset($browser->tripal_cvb_cvterm_action)
       && isset($browser->tripal_cvb_cvterm_action[LANGUAGE_NONE])) {
-      $actions = $browser->tripal_cvb_cvterm_action[LANGUAGE_NONE];
-/*    foreach ($browser->tripal_cvb_cvterm_action[LANGUAGE_NONE] as $action) {
-
-                            [type] => view
-                            [action] => term_details:term_page
-                            [title] => details
-                            [autorun] => 1
-                            [target] => region:content
-                            [insert] => replace
-    }*/
+    $actions = $browser->tripal_cvb_cvterm_action[LANGUAGE_NONE];
   }
-  
+
   return theme(
     'tripal_cvbrowser',
     array(
@@ -352,4 +346,3 @@ function tripal_cvb_browser_render($browser) {
     )
   );
 }
-

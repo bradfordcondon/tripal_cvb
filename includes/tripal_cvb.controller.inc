@@ -31,7 +31,12 @@ class TripalCVBrowserController extends EntityAPIControllerExportable {
   /**
    * Fills CV Browser field settings.
    */
-  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+  public function buildContent(
+    $entity,
+    $view_mode = 'full',
+    $langcode = NULL,
+    $content = array()
+  ) {
 
     $content['description'] = array(
       '#theme'              => 'field',

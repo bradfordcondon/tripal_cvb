@@ -46,10 +46,10 @@ class TripalCVBrowserUIController extends EntityDefaultUIController {
           . l(t('delete'), 'tripal_cvb/' . $entity->cvbid . '/delete')
           . '</li></ul>';
         $rows[$cvbid] = array(
-          'title'            => $title,
-          'root_type'        => $entity->root_type,
-          'root_ids'         => $entity->root_ids,
-          'operations'       => $operations,
+          'title'      => $title,
+          'root_type'  => $entity->root_type,
+          'root_ids'   => $entity->root_ids,
+          'operations' => $operations,
         );
       }
 
@@ -58,10 +58,10 @@ class TripalCVBrowserUIController extends EntityDefaultUIController {
         array(
           'header' =>
             array(
-              'title'            => t('Name'),
-              'root_type'        => t('Root type'),
-              'root_ids'         => t('Root identifiers'),
-              'operations'       => t('Operations'),
+              'title'      => t('Name'),
+              'root_type'  => t('Root type'),
+              'root_ids'   => t('Root identifiers'),
+              'operations' => t('Operations'),
             ),
           'rows' => $rows,
         )
