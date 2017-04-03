@@ -16,9 +16,9 @@ require_once 'theme/tripal_cvb.theme.inc';
 /**
  * Implements hook_permissions().
  *
- * 2 Permissions exist for Tripal CV Browser:
+ * 2 Permissions exist for Tripal CV browser:
  *   - Use of the CV browser page;
- *   - Administer the CV Browser settings.
+ *   - Administer the CV browser settings.
  *
  * @ingroup tripal_cvb
  */
@@ -27,11 +27,11 @@ function tripal_cvb_permission() {
   return array(
     'use tripal cv browser' => array(
       'title' => t('Use tripal cv browser page'),
-      'description' => t('Allow users to access to the global Tripal CV Browser page that can browse any CV or term.'),
+      'description' => t('Allow users to access to the global Tripal CV browser page that can browse any CV or term.'),
     ),
     'administer tripal cv browser' => array(
       'title' => t('Administer Tripal CV Browser'),
-      'description' => t('Allow access to the Tripal CV Browser administration page.'),
+      'description' => t('Allow access to the Tripal CV browser administration page.'),
     ),
   );
 }
@@ -51,7 +51,7 @@ function tripal_cvb_menu() {
   // Parameters: type of object (cv or cvterm) and object ID(s) or name(s).
   $items['tripal/cvbrowser/%/%'] = array(
     'title' => 'CV Browser',
-    'description' => 'Global CV Browser page. First argument is the object type (either "cv" or "cvterm") and second argument is the object ID(s) or name(s) (multiple values are separated by "+" signs).',
+    'description' => 'Global CV browser page. First argument is the object type (either "cv" or "cvterm") and second argument is the object ID(s) or name(s) (multiple values are separated by "+" signs).',
     'page callback' => 'tripal_cvb_cv_render',
     'page arguments' => array(2, 3),
     'access callback' => 'user_access',
@@ -84,7 +84,7 @@ function tripal_cvb_menu() {
   // Configuration page.
   $items['admin/tripal/extension/tripal_cvb'] = array(
     'title' => 'Tripal CV Browser',
-    'description' => 'Tripal CV Browser extension module.',
+    'description' => 'Tripal CV browser extension module.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('tripal_cvb_admin_form', array()),
     'access callback' => 'user_access',
@@ -93,7 +93,7 @@ function tripal_cvb_menu() {
   );
   $items['admin/tripal/extension/tripal_cvb/configuration'] = array(
     'title' => 'Settings',
-    'description' => 'Tripal CV Browser extension module.',
+    'description' => 'Tripal CV browser extension module.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('tripal_cvb_admin_form', array()),
     'access callback' => 'user_access',
@@ -105,7 +105,7 @@ function tripal_cvb_menu() {
   // Help page based using theme/templates/tripal_cvb_help.tpl.php file.
   $items['admin/tripal/extension/tripal_cvb/help'] = array(
     'title' => 'Help',
-    'description' => 'Tripal CV Browser Administration Help',
+    'description' => 'Tripal CV browser Administration Help',
     'page callback' => 'theme',
     'page arguments' => array('tripal_cvb_help', array()),
     'access callback' => 'user_access',
@@ -114,13 +114,13 @@ function tripal_cvb_menu() {
     'weight' => 1,
   );
 
-  // Tripal CV Browser entity menus.
+  // Tripal CV browser entity menus.
   $tripal_cvb_uri = 'tripal_cvb/%tripal_cvb';
   $tripal_cvb_uri_argument_position = 1;
 
   $items['tripal_cvb'] = array(
     'title' => 'Tripal CV Browsers',
-    'description' => 'View available Tripal CV Browsers.',
+    'description' => 'View available Tripal CV browsers.',
     'page callback' => 'theme',
     'page arguments' => array('tripal_cvb_list'),
     'access arguments' => array('use tripal cv browser'),
@@ -273,10 +273,10 @@ function tripal_cvb_entity_info() {
       'module' => 'tripal_cvb',
       'view modes' => array(
         'default' => array(
-          'label'           => t('Chado CV Browser details'),
+          'label'           => t('Chado CV browser details'),
         ),
         'full' => array(
-          'label' => t('Full Chado CV Browser details'),
+          'label' => t('Full Chado CV browser details'),
           'custom settings' => FALSE,
         ),
       ),
@@ -309,7 +309,7 @@ function tripal_cvb_entity_property_info_alter(&$info) {
 /**
  * Implements hook_page_title().
  *
- * Returns CV Browser title.
+ * Returns CV browser title.
  *
  * @ingroup tripal_cvb
  */
@@ -345,7 +345,7 @@ function tripal_cvb_block_info() {
 /**
  * Implements hook_block_view().
  *
- * Displays a CV Browser block.
+ * Displays a CV browser block.
  *
  * @ingroup tripal_cvb
  */

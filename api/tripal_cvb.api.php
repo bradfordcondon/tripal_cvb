@@ -332,9 +332,9 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
 
   // Get actions.
   $actions = array();
-  if (isset($browser->tripal_cvb_cvterm_action)
-      && isset($browser->tripal_cvb_cvterm_action[LANGUAGE_NONE])) {
-    $actions = $browser->tripal_cvb_cvterm_action[LANGUAGE_NONE];
+  if (isset($browser->cvterm_action)
+      && isset($browser->cvterm_action[LANGUAGE_NONE])) {
+    $actions = $browser->cvterm_action[LANGUAGE_NONE];
   }
 
   return theme(

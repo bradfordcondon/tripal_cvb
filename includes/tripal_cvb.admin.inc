@@ -106,14 +106,14 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
 
   // $items is used to provide default values for the field. You can set it to
   // NULL or an empty array if desired.
-  $items = field_get_items($entity_type, $entity, 'tripal_cvb_cvterm_action');
+  $items = field_get_items($entity_type, $entity, 'cvterm_action');
 
   // We need the field and field instance information to pass along to
   // field_default_form().
-  $field = field_info_field('tripal_cvb_cvterm_action');
+  $field = field_info_field('cvterm_action');
   $instance = field_info_instance(
     $entity_type,
-    'tripal_cvb_cvterm_action',
+    'cvterm_action',
     $bundle_name
   );
 
@@ -163,8 +163,8 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
       '#description'   => t('Type of the root items which identifiers are specified below.'),
       '#required'      => TRUE,
       '#options'       => array(
-        'cvterm' => t('cvterm'),
-        'cv'     => t('cv'),
+        'cvterm' => t('CV Term'),
+        'cv'     => t('CV'),
       ),
       '#default_value' => $browser->root_type,
       '#weight'        => 2,
@@ -172,7 +172,7 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
     'root_ids' => array(
       '#type'          => 'textfield',
       '#title'         => t('Root object identifiers'),
-      '#description'   => t('Identifiers of CV or CV term object to use as tree browser root.'),
+      '#description'   => t('Identifiers of CV or CV term object to use as tree browser root. Multiple identifiers must be separated by "+" signs.'),
       '#required'      => TRUE,
       '#default_value' => $browser->root_ids,
       '#weight'        => 3,

@@ -10,9 +10,9 @@
  *
  * @see https://api.drupal.org/api/drupal/modules%21field%21field.api.php/function/hook_field_schema/7.x
  */
-function tripal_cvb_cvterm_action_field_schema($field) {
+function cvterm_action_field_schema($field) {
   $columns = array();
-  if ($field['type'] == 'tripal_cvb_cvterm_action') {
+  if ($field['type'] == 'cvterm_action') {
     $columns = array(
       'type' => array(
         'type' => 'varchar',

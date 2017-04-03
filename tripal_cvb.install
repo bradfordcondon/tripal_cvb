@@ -18,25 +18,25 @@ function tripal_cvb_install() {
   variable_set('tripal_cvb_settings', $initial_tripal_cvb_cvb_settings);
 
   // Make sure the field doesn't already exist.
-  if (!field_info_field('tripal_cvb_cvterm_action')) {
+  if (!field_read_field('cvterm_action', array('include_inactive' => TRUE))) {
     // Create the field.
     $field = array(
-      'field_name' => 'tripal_cvb_cvterm_action',
-      'type' => 'tripal_cvb_cvterm_action',
+      'field_name' => 'cvterm_action',
+      'type' => 'cvterm_action',
       'locked' => TRUE,
       'settings' => array(),
       'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'deleted' => 0,
-      'module' => 'tripal_cvb_cvterm_action',
+      'module' => 'cvterm_action',
       'translatable' => 0,
       'entity_types' => array('tripal_cvb'),
     );
     field_create_field($field);
   }
-  if (!field_info_instance('tripal_cvb', 'tripal_cvb_cvterm_action', 'tripal_cvb')) {
+  if (!field_read_instance('tripal_cvb', 'cvterm_action', 'tripal_cvb', array('include_inactive' => TRUE))) {
     // Create the field instance.
     $instance = array(
-      'field_name'  => 'tripal_cvb_cvterm_action',
+      'field_name'  => 'cvterm_action',
       'entity_type' => 'tripal_cvb',
       'bundle'      => 'tripal_cvb',
       'label'       => 'Actions',
@@ -47,9 +47,9 @@ function tripal_cvb_install() {
       'display' => array(
         'default' => array(
           'label' => 'above',
-          'module' => 'tripal_cvb_cvterm_action',
+          'module' => 'cvterm_action',
           'settings' => array(),
-          'type' => 'tripal_cvb_cvterm_action',
+          'type' => 'cvterm_action',
           'weight' => 5,
         ),
         'teaser' => array(
@@ -61,9 +61,9 @@ function tripal_cvb_install() {
       ),
       'settings' => array(),
       'widget' => array(
-        'module' => 'tripal_cvb_cvterm_action',
+        'module' => 'cvterm_action',
         'settings' => array(),
-        'type' => 'tripal_cvb_cvterm_action',
+        'type' => 'cvterm_action',
         'weight' => 5,
       ),
     );
@@ -84,7 +84,7 @@ function tripal_cvb_uninstall() {
 
   try {
     field_attach_delete_bundle('tripal_cvb', 'tripal_cvb');
-    field_delete_field('tripal_cvb_cvterm_action');
+    field_delete_field('cvterm_action');
   }
   catch (Exception $e) {
     drupal_set_message(

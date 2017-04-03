@@ -4,17 +4,17 @@ core = 7.x
 package = Tripal Extensions
 configure = admin/tripal/extension/tripal_cvb
 
+dependencies[] = entity
+dependencies[] = jquery_update
 dependencies[] = tripal_core
 dependencies[] = tripal_db
 dependencies[] = tripal_cv
-dependencies[] = tripal_cvb_cvterm_action
-dependencies[] = jquery_update
-dependencies[] = entity
+dependencies[] = cvterm_action
 
 files[] = includes/tripal_cvb.entity.inc
 files[] = includes/tripal_cvb.controller.inc
 files[] = includes/tripal_cvb.ui_controller.inc
-; files[] = tripal_cvb.test
+files[] = tripal_cvb.test
 
 scripts[] = /theme/js/tripal_cvb.js
 
