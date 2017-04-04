@@ -11,8 +11,8 @@
  */
 ?>
 
-<div class="tripal-cvb tripal-cvb-browser tripal-cvb-browser-<?php
-  echo $browser->machine_name;
+<div class="tripal-cvb tripal-cvb-browser<?php
+  echo ($browser->machine_name ? ' tripal-cvb-browser-' . $browser->machine_name : '');
 ?>">
   <ul class="tripal-cvb">
 <?php
