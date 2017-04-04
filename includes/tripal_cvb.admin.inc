@@ -84,6 +84,8 @@ function tripal_cvb_admin_add_page() {
  * @see tripal_cvb_form_submit()
  * @see tripal_cvb_form_submit_delete()
  *
+ * @todo Add field content verification like machine name length below 16 characters.
+ *
  * @ingroup tripal_cvb
  */
 function tripal_cvb_form(array $form, array &$form_state, $browser) {
@@ -330,17 +332,24 @@ function tripal_cvb_access($op, $browser, $account = NULL, $entity_type = NULL) 
   switch ($op) {
     case 'create':
       return user_access('administer tripal cv browser', $account)
+        || user_access('administer tripal_cvb entities', $account)
         || user_access('create tripal_cvb entities', $account);
 
     case 'view':
       return user_access('administer tripal cv browser', $account)
-        || user_access('view tripal_cvb entities', $account);
+        || user_access('administer tripal_cvb entities', $account)
+        || user_access('view any tripal_cvb entity', $account);
 
     case 'edit':
+    case 'update':
       return user_access('administer tripal cv browser')
-        || user_access('edit any tripal_cvb entities')
-        || (user_access('edit own tripal_cvb entities')
-          && ($browser->uid == $account->uid));
+        || user_access('administer tripal_cvb entities', $account)
+        || user_access('edit any tripal_cvb entity');
+
+    case 'delete':
+      return user_access('administer tripal cv browser')
+        || user_access('administer tripal_cvb entities', $account)
+        || user_access('edit any tripal_cvb entity');
   }
 }
 
