@@ -72,8 +72,8 @@ function tripal_cvb_menu() {
     'description' => 'Global CV browser page. First argument is the object type (either "cv" or "cvterm") and second argument is the object ID(s) or name(s) (multiple values are separated by "+" signs).',
     'page callback' => 'tripal_cvb_cv_render',
     'page arguments' => array(2, 3),
-    'access callback' => 'user_access',
-    'access arguments' => array('use tripal cv browser', 'administer tripal cv browser'),
+    'access callback' => 'tripal_cvb_permission_access',
+    'access arguments' => array(array('use tripal cv browser', 'administer tripal cv browser')),
     'type' => MENU_CALLBACK,
   );
 
@@ -83,8 +83,8 @@ function tripal_cvb_menu() {
     'description' => 'Provides an JSON hash of cvterm details.',
     'page callback' => 'tripal_cvb_get_cvterm_info_json',
     'page arguments' => array(3),
-    'access callback' => 'user_access',
-    'access arguments' => array('use tripal cv browser', 'administer tripal cv browser'),
+    'access callback' => 'tripal_cvb_permission_access',
+    'access arguments' => array(array('use tripal cv browser', 'administer tripal cv browser')),
     'type' => MENU_CALLBACK,
   );
 
@@ -94,8 +94,8 @@ function tripal_cvb_menu() {
     'description' => 'Provides an JSON hash of cvterm children details.',
     'page callback' => 'tripal_cvb_get_cvterm_children_json',
     'page arguments' => array(3),
-    'access callback' => 'user_access',
-    'access arguments' => array('use tripal cv browser', 'administer tripal cv browser'),
+    'access callback' => 'tripal_cvb_permission_access',
+    'access arguments' => array(array('use tripal cv browser', 'administer tripal cv browser')),
     'type' => MENU_CALLBACK,
   );
 
@@ -105,8 +105,8 @@ function tripal_cvb_menu() {
     'description' => 'Tripal CV browser extension module.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('tripal_cvb_admin_form', array()),
-    'access callback' => 'user_access',
-    'access arguments' => array('administer tripal cv browser'),
+    'access callback' => 'tripal_cvb_permission_access',
+    'access arguments' => array(array('administer tripal cv browser')),
     'type' => MENU_NORMAL_ITEM,
   );
   $items['admin/tripal/extension/tripal_cvb/configuration'] = array(
@@ -114,8 +114,8 @@ function tripal_cvb_menu() {
     'description' => 'Tripal CV browser extension module.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('tripal_cvb_admin_form', array()),
-    'access callback' => 'user_access',
-    'access arguments' => array('administer tripal cv browser'),
+    'access callback' => 'tripal_cvb_permission_access',
+    'access arguments' => array(array('administer tripal cv browser')),
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 0,
   );
@@ -126,8 +126,8 @@ function tripal_cvb_menu() {
     'description' => 'Tripal CV browser Administration Help',
     'page callback' => 'theme',
     'page arguments' => array('tripal_cvb_help', array()),
-    'access callback' => 'user_access',
-    'access arguments' => array('administer tripal cv browser'),
+    'access callback' => 'tripal_cvb_permission_access',
+    'access arguments' => array(array('administer tripal cv browser')),
     'type' => MENU_LOCAL_TASK,
     'weight' => 1,
   );
@@ -141,23 +141,25 @@ function tripal_cvb_menu() {
     'description' => 'View available Tripal CV browsers.',
     'page callback' => 'theme',
     'page arguments' => array('tripal_cvb_list'),
-    'access arguments' => array(
+    'access callback' => 'tripal_cvb_permission_access',
+    'access arguments' => array(array(
       'use tripal cv browser',
       'administer tripal cv browser',
       'administer tripal_cvb entities',
       'view any tripal_cvb entity'
-    ),
+    )),
     'type' => MENU_NORMAL_ITEM,
   );
 
   $items['tripal_cvb/add'] = array(
     'title' => 'Add Tripal CV Browser',
     'page callback' => 'tripal_cvb_admin_add_page',
-    'access arguments' => array(
+    'access callback' => 'tripal_cvb_permission_access',
+    'access arguments' => array(array(
       'administer tripal cv browser',
       'administer tripal_cvb entities',
       'create tripal_cvb entities'
-    ),
+    )),
     'file' => 'includes/tripal_cvb.admin.inc',
     'type' => MENU_LOCAL_ACTION,
     'tab_parent' => 'tripal_cvb',

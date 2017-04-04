@@ -320,7 +320,21 @@ function tripal_cvb_delete_form_submit($form, &$form_state) {
 }
 
 /**
- * Access callback for CV Browser.
+ * Access callback for CV browser interface.
+ */
+function tripal_cvb_permission_access($roles) {
+
+  foreach ($roles as $role) {
+    if (user_access($role)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Access callback for CV browser entities.
  */
 function tripal_cvb_access($op, $browser, $account = NULL, $entity_type = NULL) {
   global $user;
