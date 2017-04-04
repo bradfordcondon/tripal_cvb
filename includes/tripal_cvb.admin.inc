@@ -81,10 +81,9 @@ function tripal_cvb_admin_add_page() {
  * @param object $browser
  *   A CV Browser object (TripalCVBrowser).
  *
+ * @see tripal_cvb_form_validate()
  * @see tripal_cvb_form_submit()
  * @see tripal_cvb_form_submit_delete()
- *
- * @todo Add field content verification like machine name length below 16 characters.
  *
  * @ingroup tripal_cvb
  */
@@ -142,13 +141,13 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
       '#description'   => t('This label is for administrative purpose and will be used to identify the following browser settings on administration interfaces.'),
       '#required'      => TRUE,
       '#default_value' => $browser->title,
-      '#field_suffix' => '<br/>',
+      '#field_suffix'  => '<br/>',
       '#weight'        => 0,
     ),
     'machine_name' => array(
       '#type' => 'machine_name',
       '#default_value' => $browser->machine_name,
-      '#maxlength' => 24,
+      '#maxlength' => 16,
       '#machine_name' => array(
         'exists' => 'tripal_cvb_name_exists',
         'source' => array('title'),
@@ -156,8 +155,9 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
         'replace_pattern' => $machine_name_pattern,
         'replace' => $machine_name_replacement,
       ),
-      '#required'      => TRUE,
-      '#weight'        => 1,
+      '#required'         => TRUE,
+      '#element_validate' => array('tripal_cvb_machine_name_validate'),
+      '#weight'           => 1,
     ),
     'root_type' => array(
       '#type'          => 'select',
@@ -214,9 +214,9 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
   );
 
   $form['actions']['submit'] = array(
-    '#type'   => 'submit',
-    '#value'  => t('Save'),
-    '#submit' => $submit + array('tripal_cvb_form_submit'),
+    '#type'     => 'submit',
+    '#value'    => t('Save'),
+    '#submit'   => $submit + array('tripal_cvb_form_submit'),
   );
 
   // Show Delete button if we edit a CV Browser.
@@ -231,6 +231,18 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
   }
 
   return $form;
+}
+
+/**
+ * CV Browser machine_name validation handler.
+ */
+function tripal_cvb_machine_name_validate($element, &$form_state, $form) {
+   if (empty($element['#value'])) {
+     form_error($element, t('The machine name field is required.'));
+   }
+   elseif (16 < strlen($element['#value'])) {
+     form_error($element, t('The machine name field must be non longer than 16 characters.'));
+   }
 }
 
 /**
