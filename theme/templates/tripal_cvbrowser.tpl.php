@@ -9,6 +9,9 @@
  *
  * @ingroup tripal_cvb
  */
+ 
+drupal_add_css(drupal_get_path('module', 'tripal_cvb') . '/theme/css/tripal_cvb.css');
+drupal_add_js(drupal_get_path('module', 'tripal_cvb') .'/theme/js/tripal_cvb.jss');
 ?>
 
 <div class="tripal-cvb tripal-cvb-browser<?php
