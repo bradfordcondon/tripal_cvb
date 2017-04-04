@@ -2,249 +2,342 @@
 
 /**
  * @file
- * An example of simpletest tests to accompany the tutorial at
- * http://drupal.org/node/890654.
+ * Test file for Tripal CV browser features.
  */
 
 module_load_include('php', 'tripal_core_test', 'tripal_test_case');
 
 /**
- * The SimpleTestExampleTestCase is a functional test case, meaning that it
- * actually exercises a particular sequence of actions through the web UI.
- * The majority of core test cases are done this way, but the SimpleTest suite
- * also provides unit tests as demonstrated in the unit test case example later
- * in this file.
- *
- * Functional test cases are far slower to execute than unit test cases because
- * they require a complete Drupal install to be done for each test.
+ * This test file tests the basics of the Tripal CV browser module
+ * functionalities.
  *
  * @see DrupalWebTestCase
  * @see SimpleTestUnitTestExampleTestCase
  *
  * @ingroup simpletest_example
  */
-class TripalDtTestCase extends TripalTestCase {
+class TripalCvbTestCase extends TripalTestCase {
+
+  protected $regular_user;
+  protected $global_cvb_user;
+  protected $cvb_admin;
+  protected $cvs;
+  protected $cvterms;
+  protected $browsers;
 
   /**
-   * Give display information to the SimpleTest system.
-   *
-   * getInfo() returns a keyed array of information for SimpleTest to show.
-   *
-   * It's a good idea to organize your tests consistently using the 'group'
-   * key.
+   * Returns the test title and description.
    */
   public static function getInfo() {
     return array(
-      'name' => 'Tripal Demo Tree Functional Tests',
-      'description' => 'Ensure that the demo tree works properly.',
-      'group' => 'Tripal Demo Tree',
+      'name' => 'Tripal CV browser Functional Tests',
+      'description' => 'Ensure that the CV browser works properly.',
+      'group' => 'Tripal CV Browser',
     );
   }
 
   /**
    * Set up the test environment.
    *
-   * This method is called once per test method, before the test is executed.
-   * It gives you a chance to control the setup of the test environment.
-   *
-   * If you need a different test environment, then you should create another
-   * test class which overloads DrupalWebTestCase::setUp() differently.
-   *
    * @see DrupalWebTestCase::setUp()
    */
   public function setUp() {
 
-    parent::setUp();
+    parent::setUp(array('views', 'entity', 'cvterm_action', 'tripal_cv'));
 
-    // Enable the demo tree module.
+    // We need to clear field info cache and static variables first otherwise
+    // it will not recognize our new field.
+    field_info_cache_clear();
+
+    // Enable the CV browser module.
     module_enable(array('tripal_cvb'), TRUE);
-    // Rebuild menu so the new demo tree page is taken into account.
-    menu_rebuild();
+    $this->resetAll();
+    $this->verbose("Enabled module: tripal_cvb");
 
     // Insert default data.
-    $this->initDemoTreeDataset();
+    $this->initCVBrowserDataset();
+
+    // Create user with appropriate roles.
+    $this->regular_user    = $this->drupalCreateUser(array('access content'));
+    $this->global_cvb_user = $this->drupalCreateUser(array('use tripal cv browser'));
+    $this->cvb_admin       = $this->drupalCreateUser(array('administer tripal cv browser', 'administer tripal_cvb entities', 'administer blocks'));
   }
 
   /**
-   * Test dataset.
+   * Inserts a new CV and returns its cv_id.
    */
-  protected function initDemoTreeDataset() {
-    // Insert testing dataset.
-    $insert_tree_sql = "INSERT INTO {phylotree} VALUES
-      (1,  1, 'Banana testing tree', 1, NULL, 'A tree for testing.');";
-
-    $insert_nodes_sql = "INSERT INTO {phylonode} VALUES
-      (1, 1, NULL, 1, 14, 1, NULL, 'Musaceae', NULL),
-      (2, 1, 1, 2, 9, 1, NULL, 'Musa', NULL),
-      (3, 1, 1, 10, 13, 1, NULL, 'Ensete', NULL),
-      (4, 1, 2, 3, 8, 1, NULL, 'Eumusa', NULL),
-      (5, 1, 4, 4, 5, 1, NULL, 'acuminata', NULL),
-      (6, 1, 4, 6, 7, 1, NULL, 'balbisiana', NULL),
-      (7, 1, 3, 11, 12, 1, NULL, 'lasiocarpa', NULL);";
-
-    chado_query($insert_tree_sql);
-    chado_query($insert_nodes_sql);
-
-    // The following code could also be used for data initialization:
-    // @code
-    // // We need to initialize sequences even if we specify the IDs otherwise
-    // // PostgreSQL will complain the sequence is not initialized.
-    // $chado_schema = tripal_get_schema_name('chado');
-    // chado_query("SELECT setval('$chado_schema.phylotree_phylotree_id_seq', 1);");
-    // chado_query("SELECT setval('$chado_schema.phylonode_phylonode_id_seq', 1);");
-    //
-    // // Insert tree
-    // $phylotree =  array(
-    //   'phylotree_id' => 1,
-    //   'dbxref_id'    => 1,
-    //   'name'         => 'Banana testing tree',
-    //   'type_id'      => 1,
-    //   'analysis_id'  => NULL,
-    //   'comment'      => 'A tree for testing.',
-    // );
-    // $result = chado_insert_record('phylotree', $phylotree);
-    //
-    // $phylonodes =  array(
-    //   array(
-    //     'phylonode_id'        => 1,
-    //     'phylotree_id'        => 1,
-    //     'parent_phylonode_id' => NULL,
-    //     'left_idx'            => 1,
-    //     'right_idx'           => 14,
-    //     'type_id'             => 1,
-    //     'feature_id'          => NULL,
-    //     'label'               => 'Musaceae',
-    //     'distance'            => NULL,
-    //   ),
-    //   array(
-    //     'phylonode_id'        => 2,
-    //     'phylotree_id'        => 1,
-    //     'parent_phylonode_id' => 1,
-    //     'left_idx'            => 2,
-    //     'right_idx'           => 9,
-    //     'type_id'             => 1,
-    //     'feature_id'          => NULL,
-    //     'label'               => 'Musa',
-    //     'distance'            => NULL,
-    //   ),
-    //   array(
-    //     'phylonode_id'        => 3,
-    //     'phylotree_id'        => 1,
-    //     'parent_phylonode_id' => 1,
-    //     'left_idx'            => 10,
-    //     'right_idx'           => 13,
-    //     'type_id'             => 1,
-    //     'feature_id'          => NULL,
-    //     'label'               => 'Ensete',
-    //     'distance'            => NULL,
-    //   ),
-    //   array(
-    //     'phylonode_id'        => 4,
-    //     'phylotree_id'        => 1,
-    //     'parent_phylonode_id' => 2,
-    //     'left_idx'            => 3,
-    //     'right_idx'           => 8,
-    //     'type_id'             => 1,
-    //     'feature_id'          => NULL,
-    //     'label'               => 'Eumusa',
-    //     'distance'            => NULL,
-    //   ),
-    //   array(
-    //     'phylonode_id'        => 5,
-    //     'phylotree_id'        => 1,
-    //     'parent_phylonode_id' => 4,
-    //     'left_idx'            => 4,
-    //     'right_idx'           => 5,
-    //     'type_id'             => 1,
-    //     'feature_id'          => NULL,
-    //     'label'               => 'acuminata',
-    //     'distance'            => NULL,
-    //   ),
-    //   array(
-    //     'phylonode_id'        => 6,
-    //     'phylotree_id'        => 1,
-    //     'parent_phylonode_id' => 4,
-    //     'left_idx'            => 6,
-    //     'right_idx'           => 7,
-    //     'type_id'             => 1,
-    //     'feature_id'          => NULL,
-    //     'label'               => 'balbisiana',
-    //     'distance'            => NULL,
-    //   ),
-    //   array(
-    //     'phylonode_id'        => 7,
-    //     'phylotree_id'        => 1,
-    //     'parent_phylonode_id' => 3,
-    //     'left_idx'            => 11,
-    //     'right_idx'           => 12,
-    //     'type_id'             => 1,
-    //     'feature_id'          => NULL,
-    //     'label'               => 'lasiocarpa',
-    //     'distance'            => NULL,
-    //   ),
-    // );
-    // foreach ($phylonodes as $phylonode) {
-    //   $result = chado_insert_record('phylonode', $phylonode);
-    // }
-    // @endcode
-  }
-
-  /**
-   * Test dataset.
-   */
-  protected function runTestDemoTreeDataset() {
-    $this->verbose("Testing demo tree dataset.");
-
-    // Check data insertion.
-    // First, phylotree.
-    $result = chado_query("SELECT * FROM {phylotree};");
-    $phylotree = $result->fetchObject();
-    $this->assertTrue($phylotree, 'Phylotree inserted correctly.');
-    $this->assertEqual(
-      $phylotree->phylotree_id,
-      1,
-      'First tree has phylotree_id 1.'
+  protected function insertCV($cv_name, $cv_definition = '') {
+    $insert_sql = "
+    INSERT INTO {cv} (cv_id, name, definition)
+    VALUES (DEFAULT, :cv_name, :cv_definition);";
+    chado_query(
+      $insert_sql,
+      array(
+        ':cv_name' => $cv_name,
+        ':cv_definition' => $cv_definition,
+      )
     );
-    // Then phylonodes.
-    $result = chado_query("SELECT * FROM {phylonode};");
-    $node_count = 0;
-    foreach ($result as $phylonode) {
-      $this->assertEqual(
-        $phylonode->phylotree_id,
-        $phylotree->phylotree_id,
-        'Phylonode ' . $phylonode->phylonode_id . ' belongs to phylotree 1.'
-      );
-      ++$node_count;
+    
+    $sql = "SELECT cv_id FROM {cv} WHERE name = :cv_name;";
+    $result = chado_query($sql, array(':cv_name' => $cv_name,));
+    $cv_id = $result->fetchField();
+
+    return $cv_id;
+  }
+
+  /**
+   * Inserts a new CV term and returns its cvterm_id.
+   */
+  protected function insertCVTerm($cvterm_name, $cv_id, $cvterm_definition = '') {
+    $accession = 'cvterm:' . $cvterm_name;
+    $sql = "
+      INSERT INTO {dbxref} (dbxref_id, db_id, accession, version, description)
+      VALUES (DEFAULT, 1,  :accession, DEFAULT, '');";
+    chado_query($sql, array(':accession' => $accession));
+
+    $sql = "SELECT dbxref_id FROM {dbxref} WHERE accession = :accession;";
+    $result = chado_query($sql, array(':accession' => $accession));
+    $dbxref_id = $result->fetchField();
+    
+    $sql = "
+      INSERT INTO {cvterm} (cvterm_id, cv_id, name, definition, dbxref_id, is_obsolete, is_relationshiptype)
+      VALUES (DEFAULT, :cv_id, :cvterm_name, :cvterm_definition, :dbxref_id, DEFAULT, DEFAULT);";
+    chado_query(
+      $sql,
+      array(
+        ':cv_id' => $cv_id,
+        ':cvterm_name' => $cvterm_name,
+        ':cvterm_definition' => $cvterm_definition,
+        ':dbxref_id' => $dbxref_id,
+      )
+    );
+
+    $sql = "SELECT cvterm_id FROM {cvterm} WHERE name = :cvterm_name AND cv_id = :cv_id;";
+    $result = chado_query(
+      $sql,
+      array(
+        ':cv_id' => $cv_id,
+        ':cvterm_name' => $cvterm_name,
+      )
+    );
+    $cvterm_id = $result->fetchField();
+    return $cvterm_id;
+  }
+
+  /**
+   * Inserts a new CV term relationship.
+   */
+  protected function insertCVTermRelationship($child_cvterm_id, $parent_cvterm_id) {
+    static $is_a_cvterm_id;
+
+    if (!$is_a_cvterm_id) {
+      $is_a_cvterm = tripal_get_cvterm(array('name' => 'is_a'));
+      if ($is_a_cvterm) {
+        $is_a_cvterm_id = $is_a_cvterm->cvterm_id;
+      }
+      else {
+        $is_a_cvterm_id = $this->insertCVTerm('is_a', 1);
+      }
     }
-    $this->assertEqual($node_count, 7, 'All testing nodes have been inserted correctly.');
+    
+    $sql = "
+      INSERT INTO {cvterm_relationship} (cvterm_relationship_id, type_id, subject_id, object_id)
+      VALUES (DEFAULT, :is_a_cvterm_id, :child_id, :parent_id);";
+    chado_query(
+      $sql,
+      array(
+        ':is_a_cvterm_id' => $is_a_cvterm_id,
+        ':child_id' => $child_cvterm_id,
+        ':parent_id' => $parent_cvterm_id,
+      )
+    );
+  }
+
+  /**
+   * Insert test dataset.
+   *
+   * @code
+   *  cvbrowser_test_cv (CV)
+   *    / | \
+   *   a  b  c
+   *  / \    |
+   * d   e   f
+   *     |
+   *     g
+   * @endcode
+   *
+   */
+  protected function initCVBrowserDataset() {
+    $cv_id = $this->insertCV('cvbrowser_test_cv', 'CV Browser test CV');
+
+    $a_cvterm_id = $this->insertCVTerm('alpha', $cv_id, 'Alpha letter');
+    $b_cvterm_id = $this->insertCVTerm('beta', $cv_id, 'Beta letter');
+    $c_cvterm_id = $this->insertCVTerm('gamma', $cv_id, 'Gamma letter');
+    $d_cvterm_id = $this->insertCVTerm('delta', $cv_id, 'Delta letter');
+    $e_cvterm_id = $this->insertCVTerm('epsilon', $cv_id, 'Epsilon letter');
+    $f_cvterm_id = $this->insertCVTerm('zeta', $cv_id, 'Zeta letter');
+    $g_cvterm_id = $this->insertCVTerm('eta', $cv_id, 'Eta letter');
+    
+    $this->insertCVTermRelationship($d_cvterm_id, $a_cvterm_id);
+    $this->insertCVTermRelationship($e_cvterm_id, $a_cvterm_id);
+    $this->insertCVTermRelationship($g_cvterm_id, $e_cvterm_id);
+    $this->insertCVTermRelationship($f_cvterm_id, $c_cvterm_id);
+
+    $this->cvs = array($cv_id);
+    $this->cvterms = array(
+      $a_cvterm_id,
+      $b_cvterm_id,
+      $c_cvterm_id,
+      $d_cvterm_id,
+      $e_cvterm_id,
+      $f_cvterm_id,
+      $g_cvterm_id,
+    );
+
+  }
+
+  /**
+   * Test global CV browser page.
+   */
+  protected function runTestCVBrowserPage() {
+    $this->verbose("Testing CV browser global page.");
+    
+    $this->drupalLogin($this->regular_user);
+    $this->drupalGet('tripal/cvbrowser/cv/cvbrowser_test_cv');
+    $this->assertResponse(403, 'Public access is denied to the global CV browser page.');
+
+    $this->drupalLogin($this->global_cvb_user);
+    $this->drupalGet('tripal/cvbrowser/cv/fake123');
+    $this->assertResponse(404, 'Page not found for inexisting CV.');
+
+    $this->drupalGet('tripal/cvbrowser/cvterm/fake123');
+    $this->assertResponse(404, 'Page not found for inexisting CV term.');
+
+    $this->drupalGet('tripal/cvbrowser/cv/12345678');
+    $this->assertResponse(404, 'Page not found for inexisting CV (cv_id).');
+
+    $this->drupalGet('tripal/cvbrowser/cvterm/12345678');
+    $this->assertResponse(404, 'Page not found for inexisting CV term (cvterm_id).');
+
+    $this->drupalGet('tripal/cvbrowser/cv/cvbrowser_test_cv');
+    $this->assertResponse(200, 'Access allowed to CV browser to users with "use tripal cv browser" permission.');
+
+    $this->drupalGet('tripal/cvbrowser/cvterm/' . $this->cvterms[0]);
+    $this->assertResponse(200, 'Access to CV browser using cvterm_id.');
+
+    $this->drupalGet('tripal/cvbrowser/cvterm/alpha');
+    $this->assertResponse(200, 'Access to CV browser using CV term name.');
+
+    $this->drupalGet('tripal/cvbrowser/cv/' . $this->cvs[0]);
+    $this->assertResponse(200, 'Access to CV browser using cv_id.');
+    $this->assertRaw('tripal_cvb/theme/css/tripal_cvb.css', 'Tripal CV browser CSS loaded.', 'CSS');
+    $this->assertRaw('tripal_cvb/theme/js/tripal_cvb.js', 'Tripal CV browser javascript loaded.', 'JS');
+    $this->assertText('CV Browser', 'CV browser title displayed', 'CV browser');
+    $this->assertRaw('<div class="tripal-cvb tripal-cvb-browser', 'Browser container.', 'CV browser');
+    $this->assertRaw('<ul class="tripal-cvb">', 'Browser root.', 'CV browser');
+    $this->assertRaw('<li class="tripal-cvb tripal-cvb-root', 'Browser node.', 'CV browser');
+
+    $this->drupalGet('tripal/cvbrowser/cvterm/alpha+gamma');
+    $this->assertResponse(200, 'Multiple CV term names browser.');
+
   }
 
   /**
    * Test settings.
    */
-  protected function runTestDemoTreeSettings() {
-    $this->verbose("Testing demo tree settings.");
+  protected function runTestCVBrowserSettings() {
+    $this->verbose("Testing CV browser settings.");
 
     // Check module installation.
     $result = db_query("SELECT * FROM {menu_links} WHERE link_path = 'tripal_cvb';");
     $menu_link = $result->fetchObject();
     $this->assertTrue($menu_link, 'Menu item inserted correctly.');
+
+    $this->drupalLogin($this->regular_user);
+    $this->drupalGet('tripal_cvb');
+    $this->assertResponse(403, 'Public access is denied to the list of available CV browser page.');
+
+    $this->drupalGet('tripal_cvb/add');
+    $this->assertResponse(403, 'Browser creation denied to public users.');
+
+    $this->drupalLogin($this->global_cvb_user);
+    $this->drupalGet('tripal_cvb');
+    $this->assertResponse(200, 'Access allowed to the available CV browser page to users with "use tripal cv browser" permission.');
+
+    $this->drupalGet('tripal_cvb/add');
+    $this->assertResponse(403, 'Browser creation denied to users with "use tripal cv browser" permission.');
+
+    $this->drupalLogin($this->cvb_admin);
+    $this->drupalGet('tripal_cvb/add');
+    $this->assertResponse(200, 'Browser creation allowed to admins with "administer tripal_cvb entities" permission.');
+
+    $edit = array();
+    $edit['title'] = $this->randomName();
+    $edit['machine_name'] = $this->randomName(16);
+    $edit['description'] = 'Blah blah blah.';
+    $edit['root_type'] = 'cv';
+    $edit['root_ids'] = $this->cvs[0];
+    // Other values:
+    // $edit['cvterm_action[und][0][type]']        = 'view';
+    // $edit['cvterm_action[und][0][action]']      = '';
+    // $edit['cvterm_action[und][0][title]']       = '';
+    // $edit['cvterm_action[und][0][target]']      = '';
+    // $edit['cvterm_action[und][0][target_type]'] = 'term';
+    // $edit['cvterm_action[und][0][target_id]']   = '';
+    // $edit['cvterm_action[und][0][insert]']      = 'append';
+    // $edit['cvterm_action[und][0][_weight]']     = '0';
+
+    $this->drupalPost('tripal_cvb/add', $edit, 'Save');
+    $this->assertText($edit['description']);
+
+    $this->drupalGet('tripal_cvb/' . $edit['machine_name']);
+    $this->assertText($edit['description']);
+    
+    $this->browsers = array($edit['machine_name']);
   }
 
   /**
-   * Test demo tree page.
+   * Test CV browser block features.
    */
-  protected function runTestDemoTreePage() {
-    // Check tree page content.
-    $this->drupalGet('tripal_cvb');
-    $this->assertResponse(200, 'Demo tree page exists.');
-    $this->assertRaw('tripal_cvb/theme/js/d3.min.js', 'D3 JS script loaded.', 'JS');
-    $this->assertRaw('tripal_cvb/theme/js/d3.dndtree.js', 'D3 JS drag\'n drop tree script loaded.', 'JS');
-    $this->assertText('Tree raw data', 'Tree raw data section exists.', 'Tree raw data');
-    $this->assertRaw('<td>1</td><td></td><td>Musaceae</td>', 'Tree raw data displayed', 'Tree raw data');
-    $this->assertText('Tree JSON structure', 'Tree JSON structure section exists.', 'Tree JSON');
-    $this->assertText('"name": "Musaceae",', 'Tree JSON data displayed', 'Tree JSON');
-    $this->assertRaw('<div id="tripal_cvb_tree">', 'Tree SVG area exists.', 'Tree SVG');
+  protected function runTestCVBrowserCustomBrowser() {
+    $this->drupalLogin($this->global_cvb_user);
+    $this->drupalGet('tripal/cvbrowser/browser/' . $this->browsers[0]);
+    $this->assertResponse(200, 'Access to custom browser allowed to users with permission "use tripal cv browser".');
+  }
+
+  /**
+   * Test CV browser block features.
+   */
+  protected function runTestCVBrowserBlock() {
+    $this->drupalLogin($this->cvb_admin);
+    $this->drupalGet('admin/structure/block');
+
+    $block_id = 'tripal_cvb_tripal-cvb-blk-' . $this->browsers[0];
+    $region = 'content';
+    $edit = array();
+    $edit['blocks[' . $block_id . '][region]'] = $region;
+    $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
+    
+    // Confirm that the block was moved to the proper region.
+    $this->assertText(t('The block settings have been updated.'), format_string('Block successfully moved to %region_name region.', array( '%region_name' => $region)));
+    
+    // Confirm that the custom block was found at the proper region.
+    $this->drupalGet('');
+    $block_id = 'block-' . strtolower(str_replace('_', '-', $block_id));
+    if ('content' == $region) {
+      $xpath = $this->buildXPathQuery('//div[@id=:content_id]//div[@id=:block-id]', array(
+        ':block-id' => $block_id,
+        ':content_id' => 'content',
+      ));
+    }
+    else {
+      $xpath = $this->buildXPathQuery('//div[@class=:region-class]//div[@id=:block-id]', array(
+        ':region-class' => 'region region-' . str_replace('_', '-', $region),
+        ':block-id' => $block_id,
+      ));
+    }
+$this->verbose('DEBUG XPATH: ' . $xpath);
+    $this->assertFieldByXPath($xpath, NULL, format_string('Custom CV browser block found in %region_name region.', array('%region_name' => $region)));
   }
 
   /**
@@ -254,9 +347,10 @@ class TripalDtTestCase extends TripalTestCase {
    * we will not have to instantiate and remove Chado several times (we save a
    *   lot of time!).
    */
-  public function testDemoTree() {
-    $this->runTestDemoTreeDataset();
-    $this->runTestDemoTreeSettings();
-    $this->runTestDemoTreePage();
+  public function testTripalCVBrowser() {
+    $this->runTestCVBrowserPage();
+    $this->runTestCVBrowserSettings();
+    $this->runTestCVBrowserCustomBrowser();
+    $this->runTestCVBrowserBlock();
   }
 }
