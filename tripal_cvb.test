@@ -336,7 +336,6 @@ class TripalCvbTestCase extends TripalTestCase {
         ':block-id' => $block_id,
       ));
     }
-$this->verbose('DEBUG XPATH: ' . $xpath);
     $this->assertFieldByXPath($xpath, NULL, format_string('Custom CV browser block found in %region_name region.', array('%region_name' => $region)));
   }
 
