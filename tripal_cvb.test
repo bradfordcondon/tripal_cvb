@@ -3,11 +3,7 @@
 /**
  * @file
  * Test file for Tripal CV browser features.
- */
-
-module_load_include('php', 'tripal_core_test', 'tripal_test_case');
-
-/**
+ *
  * This test file tests the basics of the Tripal CV browser module
  * functionalities.
  *
@@ -16,11 +12,17 @@ module_load_include('php', 'tripal_core_test', 'tripal_test_case');
  *
  * @ingroup simpletest_example
  */
+
+module_load_include('php', 'tripal_core_test', 'tripal_test_case');
+
+/**
+ * Main test class.
+ */
 class TripalCvbTestCase extends TripalTestCase {
 
-  protected $regular_user;
-  protected $global_cvb_user;
-  protected $cvb_admin;
+  protected $regularUser;
+  protected $globalCvbUser;
+  protected $cvbAdmin;
   protected $cvs;
   protected $cvterms;
   protected $browsers;
@@ -55,18 +57,28 @@ class TripalCvbTestCase extends TripalTestCase {
     $this->verbose("Enabled module: tripal_cvb");
 
     // Insert default data.
-    $this->initCVBrowserDataset();
+    $this->initCvBrowserDataset();
 
     // Create user with appropriate roles.
-    $this->regular_user    = $this->drupalCreateUser(array('access content'));
-    $this->global_cvb_user = $this->drupalCreateUser(array('use tripal cv browser'));
-    $this->cvb_admin       = $this->drupalCreateUser(array('administer tripal cv browser', 'administer tripal_cvb entities', 'administer blocks'));
+    $this->regularUser    = $this->drupalCreateUser(
+      array('access content')
+    );
+    $this->globalCvbUser = $this->drupalCreateUser(
+      array('use tripal cv browser')
+    );
+    $this->cvbAdmin       = $this->drupalCreateUser(
+      array(
+        'administer tripal cv browser',
+        'administer tripal_cvb entities',
+        'administer blocks',
+      )
+    );
   }
 
   /**
    * Inserts a new CV and returns its cv_id.
    */
-  protected function insertCV($cv_name, $cv_definition = '') {
+  protected function insertCv($cv_name, $cv_definition = '') {
     $insert_sql = "
     INSERT INTO {cv} (cv_id, name, definition)
     VALUES (DEFAULT, :cv_name, :cv_definition);";
@@ -77,9 +89,9 @@ class TripalCvbTestCase extends TripalTestCase {
         ':cv_definition' => $cv_definition,
       )
     );
-    
+
     $sql = "SELECT cv_id FROM {cv} WHERE name = :cv_name;";
-    $result = chado_query($sql, array(':cv_name' => $cv_name,));
+    $result = chado_query($sql, array(':cv_name' => $cv_name));
     $cv_id = $result->fetchField();
 
     return $cv_id;
@@ -88,7 +100,7 @@ class TripalCvbTestCase extends TripalTestCase {
   /**
    * Inserts a new CV term and returns its cvterm_id.
    */
-  protected function insertCVTerm($cvterm_name, $cv_id, $cvterm_definition = '') {
+  protected function insertCvTerm($cvterm_name, $cv_id, $cvterm_definition = '') {
     $accession = 'cvterm:' . $cvterm_name;
     $sql = "
       INSERT INTO {dbxref} (dbxref_id, db_id, accession, version, description)
@@ -98,7 +110,7 @@ class TripalCvbTestCase extends TripalTestCase {
     $sql = "SELECT dbxref_id FROM {dbxref} WHERE accession = :accession;";
     $result = chado_query($sql, array(':accession' => $accession));
     $dbxref_id = $result->fetchField();
-    
+
     $sql = "
       INSERT INTO {cvterm} (cvterm_id, cv_id, name, definition, dbxref_id, is_obsolete, is_relationshiptype)
       VALUES (DEFAULT, :cv_id, :cvterm_name, :cvterm_definition, :dbxref_id, DEFAULT, DEFAULT);";
@@ -127,7 +139,7 @@ class TripalCvbTestCase extends TripalTestCase {
   /**
    * Inserts a new CV term relationship.
    */
-  protected function insertCVTermRelationship($child_cvterm_id, $parent_cvterm_id) {
+  protected function insertCvTermRelationship($child_cvterm_id, $parent_cvterm_id) {
     static $is_a_cvterm_id;
 
     if (!$is_a_cvterm_id) {
@@ -136,10 +148,10 @@ class TripalCvbTestCase extends TripalTestCase {
         $is_a_cvterm_id = $is_a_cvterm->cvterm_id;
       }
       else {
-        $is_a_cvterm_id = $this->insertCVTerm('is_a', 1);
+        $is_a_cvterm_id = $this->insertCvTerm('is_a', 1);
       }
     }
-    
+
     $sql = "
       INSERT INTO {cvterm_relationship} (cvterm_relationship_id, type_id, subject_id, object_id)
       VALUES (DEFAULT, :is_a_cvterm_id, :child_id, :parent_id);";
@@ -165,23 +177,22 @@ class TripalCvbTestCase extends TripalTestCase {
    *     |
    *     g
    * @endcode
-   *
    */
-  protected function initCVBrowserDataset() {
-    $cv_id = $this->insertCV('cvbrowser_test_cv', 'CV Browser test CV');
+  protected function initCvBrowserDataset() {
+    $cv_id = $this->insertCv('cvbrowser_test_cv', 'CV Browser test CV');
 
-    $a_cvterm_id = $this->insertCVTerm('alpha', $cv_id, 'Alpha letter');
-    $b_cvterm_id = $this->insertCVTerm('beta', $cv_id, 'Beta letter');
-    $c_cvterm_id = $this->insertCVTerm('gamma', $cv_id, 'Gamma letter');
-    $d_cvterm_id = $this->insertCVTerm('delta', $cv_id, 'Delta letter');
-    $e_cvterm_id = $this->insertCVTerm('epsilon', $cv_id, 'Epsilon letter');
-    $f_cvterm_id = $this->insertCVTerm('zeta', $cv_id, 'Zeta letter');
-    $g_cvterm_id = $this->insertCVTerm('eta', $cv_id, 'Eta letter');
-    
-    $this->insertCVTermRelationship($d_cvterm_id, $a_cvterm_id);
-    $this->insertCVTermRelationship($e_cvterm_id, $a_cvterm_id);
-    $this->insertCVTermRelationship($g_cvterm_id, $e_cvterm_id);
-    $this->insertCVTermRelationship($f_cvterm_id, $c_cvterm_id);
+    $a_cvterm_id = $this->insertCvTerm('alpha', $cv_id, 'Alpha letter');
+    $b_cvterm_id = $this->insertCvTerm('beta', $cv_id, 'Beta letter');
+    $c_cvterm_id = $this->insertCvTerm('gamma', $cv_id, 'Gamma letter');
+    $d_cvterm_id = $this->insertCvTerm('delta', $cv_id, 'Delta letter');
+    $e_cvterm_id = $this->insertCvTerm('epsilon', $cv_id, 'Epsilon letter');
+    $f_cvterm_id = $this->insertCvTerm('zeta', $cv_id, 'Zeta letter');
+    $g_cvterm_id = $this->insertCvTerm('eta', $cv_id, 'Eta letter');
+
+    $this->insertCvTermRelationship($d_cvterm_id, $a_cvterm_id);
+    $this->insertCvTermRelationship($e_cvterm_id, $a_cvterm_id);
+    $this->insertCvTermRelationship($g_cvterm_id, $e_cvterm_id);
+    $this->insertCvTermRelationship($f_cvterm_id, $c_cvterm_id);
 
     $this->cvs = array($cv_id);
     $this->cvterms = array(
@@ -199,14 +210,14 @@ class TripalCvbTestCase extends TripalTestCase {
   /**
    * Test global CV browser page.
    */
-  protected function runTestCVBrowserPage() {
+  protected function runTestCvBrowserPage() {
     $this->verbose("Testing CV browser global page.");
-    
-    $this->drupalLogin($this->regular_user);
+
+    $this->drupalLogin($this->regularUser);
     $this->drupalGet('tripal/cvbrowser/cv/cvbrowser_test_cv');
     $this->assertResponse(403, 'Public access is denied to the global CV browser page.');
 
-    $this->drupalLogin($this->global_cvb_user);
+    $this->drupalLogin($this->globalCvbUser);
     $this->drupalGet('tripal/cvbrowser/cv/fake123');
     $this->assertResponse(404, 'Page not found for inexisting CV.');
 
@@ -245,7 +256,7 @@ class TripalCvbTestCase extends TripalTestCase {
   /**
    * Test settings.
    */
-  protected function runTestCVBrowserSettings() {
+  protected function runTestCvBrowserSettings() {
     $this->verbose("Testing CV browser settings.");
 
     // Check module installation.
@@ -253,21 +264,21 @@ class TripalCvbTestCase extends TripalTestCase {
     $menu_link = $result->fetchObject();
     $this->assertTrue($menu_link, 'Menu item inserted correctly.');
 
-    $this->drupalLogin($this->regular_user);
+    $this->drupalLogin($this->regularUser);
     $this->drupalGet('tripal_cvb');
     $this->assertResponse(403, 'Public access is denied to the list of available CV browser page.');
 
     $this->drupalGet('tripal_cvb/add');
     $this->assertResponse(403, 'Browser creation denied to public users.');
 
-    $this->drupalLogin($this->global_cvb_user);
+    $this->drupalLogin($this->globalCvbUser);
     $this->drupalGet('tripal_cvb');
     $this->assertResponse(200, 'Access allowed to the available CV browser page to users with "use tripal cv browser" permission.');
 
     $this->drupalGet('tripal_cvb/add');
     $this->assertResponse(403, 'Browser creation denied to users with "use tripal cv browser" permission.');
 
-    $this->drupalLogin($this->cvb_admin);
+    $this->drupalLogin($this->cvbAdmin);
     $this->drupalGet('tripal_cvb/add');
     $this->assertResponse(200, 'Browser creation allowed to admins with "administer tripal_cvb entities" permission.');
 
@@ -286,21 +297,22 @@ class TripalCvbTestCase extends TripalTestCase {
     // $edit['cvterm_action[und][0][target_id]']   = '';
     // $edit['cvterm_action[und][0][insert]']      = 'append';
     // $edit['cvterm_action[und][0][_weight]']     = '0';
-
+    // to be used when implementing CV term action tests.
+    // @todo Implement action tests.
     $this->drupalPost('tripal_cvb/add', $edit, 'Save');
     $this->assertText($edit['description']);
 
     $this->drupalGet('tripal_cvb/' . $edit['machine_name']);
     $this->assertText($edit['description']);
-    
+
     $this->browsers = array($edit['machine_name']);
   }
 
   /**
    * Test CV browser block features.
    */
-  protected function runTestCVBrowserCustomBrowser() {
-    $this->drupalLogin($this->global_cvb_user);
+  protected function runTestCvBrowserCustomBrowser() {
+    $this->drupalLogin($this->globalCvbUser);
     $this->drupalGet('tripal/cvbrowser/browser/' . $this->browsers[0]);
     $this->assertResponse(200, 'Access to custom browser allowed to users with permission "use tripal cv browser".');
   }
@@ -308,8 +320,8 @@ class TripalCvbTestCase extends TripalTestCase {
   /**
    * Test CV browser block features.
    */
-  protected function runTestCVBrowserBlock() {
-    $this->drupalLogin($this->cvb_admin);
+  protected function runTestCvBrowserBlock() {
+    $this->drupalLogin($this->cvbAdmin);
     $this->drupalGet('admin/structure/block');
 
     $block_id = 'tripal_cvb_tripal-cvb-blk-' . $this->browsers[0];
@@ -317,18 +329,27 @@ class TripalCvbTestCase extends TripalTestCase {
     $edit = array();
     $edit['blocks[' . $block_id . '][region]'] = $region;
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
-    
+
     // Confirm that the block was moved to the proper region.
-    $this->assertText(t('The block settings have been updated.'), format_string('Block successfully moved to %region_name region.', array( '%region_name' => $region)));
-    
+    $this->assertText(
+      t('The block settings have been updated.'),
+      format_string(
+        'Block successfully moved to %region_name region.',
+        array('%region_name' => $region)
+      )
+    );
+
     // Confirm that the custom block was found at the proper region.
     $this->drupalGet('');
     $block_id = 'block-' . strtolower(str_replace('_', '-', $block_id));
     if ('content' == $region) {
-      $xpath = $this->buildXPathQuery('//div[@id=:content_id]//div[@id=:block-id]', array(
-        ':block-id' => $block_id,
-        ':content_id' => 'content',
-      ));
+      $xpath = $this->buildXPathQuery(
+        '//div[@id=:content_id]//div[@id=:block-id]',
+        array(
+          ':block-id' => $block_id,
+          ':content_id' => 'content',
+        )
+      );
     }
     else {
       $xpath = $this->buildXPathQuery('//div[@class=:region-class]//div[@id=:block-id]', array(
@@ -346,10 +367,11 @@ class TripalCvbTestCase extends TripalTestCase {
    * we will not have to instantiate and remove Chado several times (we save a
    *   lot of time!).
    */
-  public function testTripalCVBrowser() {
-    $this->runTestCVBrowserPage();
-    $this->runTestCVBrowserSettings();
-    $this->runTestCVBrowserCustomBrowser();
-    $this->runTestCVBrowserBlock();
+  public function testTripalCvBrowser() {
+    $this->runTestCvBrowserPage();
+    $this->runTestCvBrowserSettings();
+    $this->runTestCvBrowserCustomBrowser();
+    $this->runTestCvBrowserBlock();
   }
+
 }

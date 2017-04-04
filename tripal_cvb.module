@@ -142,12 +142,14 @@ function tripal_cvb_menu() {
     'page callback' => 'theme',
     'page arguments' => array('tripal_cvb_list'),
     'access callback' => 'tripal_cvb_permission_access',
-    'access arguments' => array(array(
-      'use tripal cv browser',
-      'administer tripal cv browser',
-      'administer tripal_cvb entities',
-      'view any tripal_cvb entity'
-    )),
+    'access arguments' => array(
+      array(
+        'use tripal cv browser',
+        'administer tripal cv browser',
+        'administer tripal_cvb entities',
+        'view any tripal_cvb entity',
+      ),
+    ),
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -155,11 +157,13 @@ function tripal_cvb_menu() {
     'title' => 'Add Tripal CV Browser',
     'page callback' => 'tripal_cvb_admin_add_page',
     'access callback' => 'tripal_cvb_permission_access',
-    'access arguments' => array(array(
-      'administer tripal cv browser',
-      'administer tripal_cvb entities',
-      'create tripal_cvb entities'
-    )),
+    'access arguments' => array(
+      array(
+        'administer tripal cv browser',
+        'administer tripal_cvb entities',
+        'create tripal_cvb entities',
+      ),
+    ),
     'file' => 'includes/tripal_cvb.admin.inc',
     'type' => MENU_LOCAL_ACTION,
     'tab_parent' => 'tripal_cvb',
