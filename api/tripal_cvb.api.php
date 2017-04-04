@@ -330,6 +330,47 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
     $values
   );
 
+  // Outputs a 404 for global browser without results.
+  if (!$term_records->rowCount() && !$browser->cvbid) {
+    switch ($browser->root_type) {
+      case 'cv':
+        $where_clause = array();
+        $values = array();
+        if (!empty($selected_names)) {
+          $where_clause[] = 'cv.name IN (:cv_names)';
+          $values[':cv_names'] = $selected_names;
+        }
+        if (!empty($selected_ids)) {
+          $where_clause[] = 'cv.cv_id IN (:cv_ids)';
+          $values[':cv_ids'] = $selected_ids;
+        }
+        $sql_query = 'SELECT TRUE FROM cv cv'
+          . (empty($where_clause) ? '' : ' WHERE ')
+          . implode(' AND ', $where_clause);
+        break;
+
+      case 'cvterm':
+        $where_clause = array();
+        $values = array();
+        if (!empty($selected_names)) {
+          $where_clause[] = 'cvt.name IN (:cvterm_names)';
+          $values[':cvterm_names'] = $selected_names;
+        }
+        if (!empty($selected_ids)) {
+          $where_clause[] = 'cvt.cvterm_id IN (:cvterm_ids)';
+          $values[':cvterm_ids'] = $selected_ids;
+        }
+        $sql_query = 'SELECT TRUE FROM cvterm cvt'
+          . (empty($where_clause) ? '' : ' WHERE ')
+          . implode(' AND ', $where_clause);
+        break;
+    }
+    $existing = chado_query($sql_query, $values);
+    if (!$existing->rowCount()) {
+      return MENU_NOT_FOUND;
+    }
+  }
+
   // Get actions.
   $actions = array();
   if (isset($browser->cvterm_action)
