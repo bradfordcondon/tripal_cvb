@@ -133,6 +133,9 @@ function tripal_cvb_schema() {
       ),
       'machine_name' => array(
         'type' => 'varchar',
+        // Machine name is used for block names and there is a block name length
+        // limit that forces us to limit the browser machine name to 16
+        // characters.
         'length' => 16,
         'not null' => TRUE,
         'default' => 'cv-browser',
