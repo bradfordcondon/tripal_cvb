@@ -125,14 +125,14 @@ function tripal_cvb_get_cvterm_children($cvterm_id) {
       cvt.is_relationshiptype,
       cvtrcvt.name AS "relationship",
       (SELECT COUNT(1)
-       FROM cvterm_relationship cvtr2
+       FROM {cvterm_relationship} cvtr2
        WHERE cvtr2.object_id = cvtr.subject_id) AS "children_count"
-    FROM cvterm cvt
-      JOIN cvterm_relationship cvtr ON cvtr.subject_id = cvt.cvterm_id
-      JOIN cvterm cvtrcvt ON cvtr.type_id = cvtrcvt.cvterm_id
-      JOIN cv cv ON cv.cv_id = cvt.cv_id
-      JOIN dbxref dbx ON dbx.dbxref_id = cvt.dbxref_id
-      JOIN db db ON db.db_id = dbx.db_id
+    FROM {cvterm} cvt
+      JOIN {cvterm_relationship} cvtr ON cvtr.subject_id = cvt.cvterm_id
+      JOIN {cvterm} cvtrcvt ON cvtr.type_id = cvtrcvt.cvterm_id
+      JOIN {cv} cv ON cv.cv_id = cvt.cv_id
+      JOIN {dbxref} dbx ON dbx.dbxref_id = cvt.dbxref_id
+      JOIN {db} db ON db.db_id = dbx.db_id
     WHERE cvtr.object_id = :object_cvterm_id;
   ';
   $relationship_records = chado_query(
@@ -229,6 +229,7 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
     $root_ids = array(0);
   }
   if (!is_array($root_ids)) {
+    $root_ids = str_replace(array('%2B', '%2b'), '+', $root_ids);
     $root_ids = explode('+', $root_ids);
   }
 
@@ -266,8 +267,8 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
       // We only want root terms of the given CVs.
       $where_clause[] = 'NOT EXISTS (
           SELECT TRUE
-          FROM cvterm_relationship cvtr
-            JOIN cvterm pcvt ON pcvt.cvterm_id = cvtr.object_id
+          FROM {cvterm_relationship} cvtr
+            JOIN {cvterm} pcvt ON pcvt.cvterm_id = cvtr.object_id
           WHERE cvtr.subject_id = cvt.cvterm_id AND pcvt.cv_id = cvt.cv_id
           LIMIT 1
         )';
@@ -316,12 +317,12 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
       cvt.is_relationshiptype,
       NULL AS "relationship",
       (SELECT COUNT(1)
-       FROM cvterm_relationship cvtr2
+       FROM {cvterm_relationship} cvtr2
        WHERE cvtr2.object_id = cvt.cvterm_id) AS "children_count"
-    FROM cvterm cvt
-      JOIN cv cv ON cv.cv_id = cvt.cv_id
-      JOIN dbxref dbx ON dbx.dbxref_id = cvt.dbxref_id
-      JOIN db db ON db.db_id = dbx.db_id'
+    FROM {cvterm} cvt
+      JOIN {cv} cv ON cv.cv_id = cvt.cv_id
+      JOIN {dbxref} dbx ON dbx.dbxref_id = cvt.dbxref_id
+      JOIN {db} db ON db.db_id = dbx.db_id'
     . (empty($where_clause) ? '' : ' WHERE ')
     . implode(' AND ', $where_clause);
 
@@ -344,7 +345,7 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
           $where_clause[] = 'cv.cv_id IN (:cv_ids)';
           $values[':cv_ids'] = $selected_ids;
         }
-        $sql_query = 'SELECT TRUE FROM cv cv'
+        $sql_query = 'SELECT TRUE FROM {cv} cv'
           . (empty($where_clause) ? '' : ' WHERE ')
           . implode(' AND ', $where_clause);
         break;
@@ -360,7 +361,7 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
           $where_clause[] = 'cvt.cvterm_id IN (:cvterm_ids)';
           $values[':cvterm_ids'] = $selected_ids;
         }
-        $sql_query = 'SELECT TRUE FROM cvterm cvt'
+        $sql_query = 'SELECT TRUE FROM {cvterm} cvt'
           . (empty($where_clause) ? '' : ' WHERE ')
           . implode(' AND ', $where_clause);
         break;
