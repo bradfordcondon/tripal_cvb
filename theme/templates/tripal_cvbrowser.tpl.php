@@ -18,31 +18,72 @@ drupal_add_js(drupal_get_path('module', 'tripal_cvb') . '/theme/js/tripal_cvb.js
   echo ($browser->machine_name ? ' tripal-cvb-browser-' . $browser->machine_name : '');
 ?>">
 <?php
-if ($terms->rowCount()) {
+if (count($cv_terms)) {
   echo "<ul class=\"tripal-cvb\">\n";
-  // Displays first level nodes.
-  foreach ($terms as $term) {
-    if (0 < $term->children_count) {
+  // Check if we got several CV.
+  if (1 < count(array_keys($cv_terms))) {
+    // Work on each CV.
+    foreach ($cv_terms as $cv_id => $terms) {
       echo
-        '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-has-children tripal-cvb-collapsed"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
-        . $term->cvterm_id
-        . '" title="('
-        . $term->cv
-        . ') '
-        . str_replace('"', "'", $term->definition)
+        '<li class="tripal-cvb tripal-cvb-root tripal-cvb-has-children tripal-cvb-expanded tripal-cvb-action-processed"><span class="tripal-cvb-cv tripal-cvb-cvid-'
+        . $cv_id
         . '">'
-        . $term->name
+        . current($terms)->cv
         . '</span>';
+      echo "<ul class=\"tripal-cvb\">\n";
+      // Displays first level nodes.
+      foreach ($terms as $term) {
+        if (0 < $term->children_count) {
+          echo
+            '    <li class="tripal-cvb tripal-cvb-has-children tripal-cvb-collapsed"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
+            . $term->cvterm_id
+            . '" title="('
+            . $term->cv
+            . ') '
+            . str_replace('"', "'", $term->definition)
+            . '">'
+            . $term->name
+            . '</span>';
+        }
+        else {
+          echo
+            '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-leaf"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
+            . $term->cvterm_id
+            . '">'
+            . $term->name
+            . '</span>';
+        }
+        echo "</li>\n";
+      }
+      echo "</ul></li>\n";
     }
-    else {
-      echo
-        '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-leaf"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
-        . $term->cvterm_id
-        . '">'
-        . $term->name
-        . '</span>';
+  }
+  else {
+    // Just one CV.
+    // Displays first level nodes.
+    foreach (current($cv_terms) as $term) {
+      if (0 < $term->children_count) {
+        echo
+          '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-has-children tripal-cvb-collapsed"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
+          . $term->cvterm_id
+          . '" title="('
+          . $term->cv
+          . ') '
+          . str_replace('"', "'", $term->definition)
+          . '">'
+          . $term->name
+          . '</span>';
+      }
+      else {
+        echo
+          '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-leaf"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
+          . $term->cvterm_id
+          . '">'
+          . $term->name
+          . '</span>';
+      }
+      echo "</li>\n";
     }
-    echo "</li>\n";
   }
   echo "</ul>\n";
 }

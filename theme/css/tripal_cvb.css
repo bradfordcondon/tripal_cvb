@@ -4,6 +4,27 @@
  */
 
 /**
+ * CV Browser listing.
+ */
+
+.tripal-cvb-browser-list th,
+.tripal-cvb-browser-list td {
+  padding-right: 4ex;
+}
+
+/**
+ * Action styles.
+ */
+.tripal-cvb-action {
+  color: #099;
+}
+
+.tripal-cvb-action.auto-run,
+.tripal-cvb-action.replaced {
+  color: inherit;
+}
+
+/**
  * CV Browser styles.
  */
 .tripal-cvb ul.tripal-cvb {
@@ -31,8 +52,13 @@ ul.tripal-cvb li.tripal-cvb-leaf {
   text-decoration: line-through;
 }
 
-.tripal-cvb-has-children:hover {
+.tripal-cvb-has-children:hover,
+.tripal-cvb-action:hover {
   cursor: pointer;
+}
+
+.tripal-cvb-action.auto-run:hover {
+  cursor: default;
 }
 
 .tripal-cvb-leaf:hover {

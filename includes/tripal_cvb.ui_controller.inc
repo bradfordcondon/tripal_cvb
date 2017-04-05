@@ -17,6 +17,7 @@ class TripalCVBrowserUIController extends EntityDefaultUIController {
    *   A rendered (HTML) CV browser overview table.
    */
   public function overviewTable($conditions = array()) {
+    drupal_add_css(drupal_get_path('module', 'tripal_cvb') . '/theme/css/tripal_cvb.css');
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $this->entityType);
 
@@ -40,7 +41,9 @@ class TripalCVBrowserUIController extends EntityDefaultUIController {
 
         $title = l($entity->title, 'tripal_cvb/' . $entity->cvbid);
         $operations =
-          '<ul class="links inline"><li class="edit first">'
+          '<ul class="links inline"><li class="view first">'
+          . l(t('view'), 'tripal/cvbrowser/browser/' . $entity->machine_name)
+          . '</li><li class="edit">'
           . l(t('edit'), 'tripal_cvb/' . $entity->cvbid . '/edit')
           . '</li><li class="delete last">'
           . l(t('delete'), 'tripal_cvb/' . $entity->cvbid . '/delete')
@@ -64,6 +67,9 @@ class TripalCVBrowserUIController extends EntityDefaultUIController {
               'operations' => t('Operations'),
             ),
           'rows' => $rows,
+          'attributes' => array(
+            'class' => array('tripal-cvb-browser-list'),
+          ),
         )
       );
     }

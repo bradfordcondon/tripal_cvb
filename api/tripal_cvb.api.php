@@ -372,6 +372,15 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
     }
   }
 
+  // Sort terms by CV.
+  $cv_terms = array();
+  foreach ($term_records as $term) {
+    if (!array_key_exists($term->cv_id, $cv_terms)) {
+      $cv_terms[$term->cv_id] = array();
+    }
+    $cv_terms[$term->cv_id][] = $term;
+  }
+
   // Get actions.
   $actions = array();
   if (isset($browser->cvterm_action)
@@ -382,7 +391,7 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
   return theme(
     'tripal_cvbrowser',
     array(
-      'terms' => $term_records,
+      'cv_terms' => $cv_terms,
       'browser' => $browser,
       'actions' => $actions,
     )

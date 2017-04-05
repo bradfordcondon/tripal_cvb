@@ -82,6 +82,10 @@
    * Adds the handler to load and toggle subtrees as well as CV term actions.
    */
   Drupal.tripal_cvb.initCVTreeNodes = function () {
+    // Adds toggle to CV nodes.
+    $('.tripal-cvb-has-children > .tripal-cvb-cv')
+      .on('click', Drupal.tripal_cvb.toggleCVSubTree);
+
     // Adds subtree loading handlers to nodes with children.
     $('.tripal-cvb-has-children > .tripal-cvb-cvterm')
       .not('.tripal-cvb-onclick-processed')
@@ -251,6 +255,9 @@
           if ('replace' == action.insert) {
             display_content = function (content) {
               $(target_selector).html(content);
+              if ($(target_selector).is('.tripal-cvb-action')) {
+                $(target_selector).addClass('replaced');
+              }
             };
           }
           else if ('append' == action.insert) {
@@ -302,12 +309,14 @@
                 Drupal.settings.basePath
                 + '/'
                 + action_parameters;
-              // Remove trailing slash if some as we will add one before the
-              // cvterm_id parameter.
-              action_parameters = action_parameters.replace(/\/+$/, '');
+              // Replace the place holder with the cvterm_id parameter.
+              if (-1 == action_parameters.indexOf('%')) {
+                action_parameters += '/%';
+              }
+              action_parameters = action_parameters.replace('%', cvterm_id);
               get_content = function () {
                 $.ajax({
-                  url: action_parameters + '/' + cvterm_id,
+                  url: action_parameters,
                   type: 'html',
                   success: function (response) {
                     if (response) {
@@ -328,6 +337,7 @@
               $action_element = $(
                 '<a class="tripal-cvb-action" href="'
                 + action.action
+                + cvterm_id
                 + '" title="'
                 + action.title.replace('"', "'")
                 + '">'
@@ -340,7 +350,7 @@
               // Call given javascript function with cvterm_id as parameter.
               get_content = function () {
                 try {
-                  eval(action.action + '(' + cvterm_id + ');');
+                  eval(action.action + '("' + cvterm_id + '");');
                 }
                 catch (error) {
                   console.log(error);
@@ -355,9 +365,14 @@
           $(element).append(' ').append($action_element);
 
           if (!action.autorun || ('0' == action.autorun)) {
-            $action_element.on('click', get_content);
+            $action_element.on('click', function () {
+              $(this).removeClass('not-run');
+              get_content();
+            });
+            $action_element.addClass('not-run');
           }
           else {
+            $action_element.addClass('auto-run');
             get_content();
           }
 

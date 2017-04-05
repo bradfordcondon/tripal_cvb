@@ -237,12 +237,12 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
  * CV Browser machine_name validation handler.
  */
 function tripal_cvb_machine_name_validate($element, &$form_state, $form) {
-   if (empty($element['#value'])) {
-     form_error($element, t('The machine name field is required.'));
-   }
-   elseif (16 < strlen($element['#value'])) {
-     form_error($element, t('The machine name field must be non longer than 16 characters.'));
-   }
+  if (empty($element['#value'])) {
+    form_error($element, t('The machine name field is required.'));
+  }
+  elseif (16 < strlen($element['#value'])) {
+    form_error($element, t('The machine name field must be non longer than 16 characters.'));
+  }
 }
 
 /**
