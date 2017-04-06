@@ -96,8 +96,19 @@ else {
       echo preg_replace('/\W/', '_', $browser->machine_name);
     ?> =
 <?php
-    echo json_encode($actions);
+    echo json_encode($actions) . ";\n";
+
+    // Adds cvterm data.
+    foreach ($cv_terms as $cv_id => $terms) {
+      foreach ($terms as $term) {
+        echo
+          "    jQuery('.tripal-cvb-cvtermid-"
+          . $term->cvterm_id
+          . "').data('cvterm',\n        "
+          . json_encode($term)
+          . "\n      );\n";
+      }
+    }
 ?>
-    ;
   </script>
 </div>

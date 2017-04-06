@@ -304,17 +304,17 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
 
   $sql_query = '
     SELECT
-      cvt.cvterm_id,
-      cvt.cv_id,
+      cvt.cvterm_id AS "cvterm_id",
+      cvt.cv_id AS "cv_id",
       cv.name AS "cv",
-      cvt.name,
-      cvt.definition,
-      cvt.dbxref_id,
+      cvt.name AS "name",
+      cvt.definition AS "definition",
+      cvt.dbxref_id AS "dbxref_id",
       dbx.accession AS "dbxref",
       db.name AS "db",
       db.urlprefix AS "urlprefix",
-      cvt.is_obsolete,
-      cvt.is_relationshiptype,
+      cvt.is_obsolete AS "is_obsolete",
+      cvt.is_relationshiptype AS "is_relationshiptype",
       NULL AS "relationship",
       (SELECT COUNT(1)
        FROM {cvterm_relationship} cvtr2

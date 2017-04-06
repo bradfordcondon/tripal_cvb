@@ -410,7 +410,7 @@ function cvterm_action_element_validate($element, &$form_state) {
     case 'js':
       // Remove unwanted spaces.
       $action_value = trim($values['action']);
-      if (!preg_match('/^[a-zA-Z]\w+$/', $action_value)) {
+      if (!preg_match('/^(?!(?:do|if|in|for|let|new|try|var|case|else|enum|eval|false|null|this|true|void|with|break|catch|class|const|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$)[$A-Z\_a-z\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8\.]*$/', $action_value)) {
         if (FALSE !== strpos($action_value, '{')) {
           form_error($element['action'], t("Invalid javascript function name. Pieces of code are not allowed here."));
         }

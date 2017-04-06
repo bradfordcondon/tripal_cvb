@@ -150,19 +150,23 @@
                     .replace('&', '&amp;')
                     .replace('<', '&lt;')
                     .replace('>', '&lt;');
-                $ul.append(
-                  '<li class="'
-                  + li_class
-                  + '" title="'
-                  + li_title
-                  + '"><span class="'
+                var $subcvterm_span = $(
+                  '<span class="'
                   + cvterm_class
                   + '" title="'
                   + cvterm_title
                   + '">'
                   + cvterm_name
-                  + '</span></li>\n'
-                );
+                  + '</span>');
+                // Associate CV term data to the span element.
+                $subcvterm_span.data('cvterm', child_cvterm);
+                var $subcvterm_li = $(
+                  '<li class="'
+                  + li_class
+                  + '" title="'
+                  + li_title
+                  + '"></li>');
+                $ul.append($subcvterm_li.append($subcvterm_span));
               });
               $cvterm_li.append($ul);
               Drupal.tripal_cvb.initCVTreeNodes();
@@ -199,13 +203,10 @@
           browser_classes,
           'tripal-cvb-browser-'
         );
-        var term_classes = $(element)
-          .children('.tripal-cvb-cvterm:first')
-          .prop('class');
-        var cvterm_id = Drupal.tripal_cvb.getClassId(
-          term_classes,
-          'tripal-cvb-cvtermid-'
-        );
+        var $cvterm = $(element).children('.tripal-cvb-cvterm:first');
+        var cvterm_data = $cvterm.data('cvterm');
+        var term_classes = $cvterm.prop('class');
+        var cvterm_id = cvterm_data.cvterm_id;
         var actions = [];
         try {
           actions = eval('tripal_cvb_' + browser_id.replace(/\W/g, '_'));
@@ -333,11 +334,16 @@
             case 'url':
               // Disable autorun for external links.
               action.autorun = false;
+              // Get CV term data.
+              var action_url = action.action;
+              action_url = action_url.replace(/!cvterm/g, cvterm_data.name);
+              action_url = action_url.replace(/!accession/g, cvterm_data.dbxref);
+              action_url = action_url.replace(/!cv/g, cvterm_data.cv);
+              action_url = action_url.replace(/!db/g, cvterm_data.db);
               // Generate a link.
               $action_element = $(
                 '<a class="tripal-cvb-action" href="'
-                + action.action
-                + cvterm_id
+                + encodeURI(action_url)
                 + '" title="'
                 + action.title.replace('"', "'")
                 + '">'
@@ -347,10 +353,10 @@
               break;
 
             case 'js':
-              // Call given javascript function with cvterm_id as parameter.
+              // Call given javascript function with cvterm object as parameter.
               get_content = function () {
                 try {
-                  eval(action.action + '("' + cvterm_id + '");');
+                  eval(action.action + '(cvterm_data);');
                 }
                 catch (error) {
                   console.log(error);
@@ -380,6 +386,19 @@
       });
 
   };
+
+  /**
+   * Popups a cvterm content in an alert box.
+   *
+   * This function is used for test purpose. It can be seen as a demo function
+   * for Javascript type of CV term actions.
+   *
+   * @param object cvterm
+   *   A cvterm object.
+   */
+  Drupal.tripal_cvb.cvtermDump = function (cvterm) {
+    alert('CV term: ' + cvterm.name); // @todo: Add more.
+  }
 
   /**
    * Initializes CV browser when the page is loaded.
