@@ -27,25 +27,6 @@ function cvterm_action_field_info() {
 }
 
 /**
- * Implements hook_field_validate().
- *
- * @see https://api.drupal.org/api/drupal/modules%21field%21field.api.php/function/hook_field_validate/7.x
- */
-function cvterm_action_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
-  foreach ($items as $delta => $item) {
-    // @todo: add stuff.
-    if (!empty($item['action'])) {
-      if (!preg_match('/^[\w]+$/', $item['action'])) {
-        $errors[$field['field_name']][$langcode][$delta][] = array(
-          'error' => 'cvterm_action_invalid',
-          'message' => t('Invalid action.'),
-        );
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_field_is_empty().
  *
  * @see https://api.drupal.org/api/drupal/modules%21field%21field.api.php/function/hook_field_is_empty/7.x

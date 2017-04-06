@@ -397,7 +397,23 @@
    *   A cvterm object.
    */
   Drupal.tripal_cvb.cvtermDump = function (cvterm) {
-    alert('CV term: ' + cvterm.name); // @todo: Add more.
+    alert(
+      'Term: ' + cvterm.name + "\n"
+      + 'CV: ' + cvterm.cv + "\n"
+      + 'Term definition: ' + cvterm.definition + "\n"
+      + 'DB: ' + cvterm.db + "\n"
+      + 'Term URL: ' + cvterm.urlprefix + cvterm.dbxref + "\n"
+      + 'Obsolete: ' + (1 == cvterm.is_obsolete ? 'yes' : 'no') + "\n"
+      + 'Relationship type: '
+      + (1 == cvterm.is_relationshiptype ? 'yes' : 'no') + "\n"
+      + 'Parental relationship: '
+      + (null != cvterm.relationship ? cvterm.relationship : 'none') + "\n"
+      + 'Children terms: '
+      + cvterm.children_count + ' term' + (cvterm.children_count > 1 ? 's' : '')
+      + 'Chado cvterm_id: ' + cvterm.cvterm_id + "\n"
+      + 'Chado cv_id: ' + cvterm.cv_id + "\n"
+      + 'Chado dbxref_id: ' + cvterm.dbxref_id + "\n"
+    );
   }
 
   /**
