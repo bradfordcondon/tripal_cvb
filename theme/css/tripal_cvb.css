@@ -24,6 +24,12 @@
   color: inherit;
 }
 
+.tripal-cvb-action div.view,
+.tripal-cvb-action .view div.view-content,
+.tripal-cvb-action .view .view-content > div {
+  display: inline;
+}
+
 /**
  * CV Browser styles.
  */
