@@ -20,14 +20,32 @@
  */
 function tripal_cvb_admin_form($form, &$form_state) {
   $form = array();
-
-  // Displays "add" link.
-  $form['cvb_add'] = array(
-    '#markup' => l(t('Create a new CV Browser'), 'tripal_cvb/add'),
-  );
+  
+  $settings = tripal_cvb_get_settings();
 
   // CV settings.
   $form['cvb_settings'] = array(
+    '#type'        => 'fieldset',
+    '#attributes'  => array('class' => array('container-inline')),
+    '#title'       => t('Global CV browser settings'),
+    '#collapsible' => TRUE,
+    '#collapsed'   => FALSE,
+  );
+
+  $form['cvb_settings']['show_cv'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Display CV name(s) as browser root(s)'),
+    '#default_value' => $settings['show_cv'],
+    '#required'      => 0,
+  );
+
+  $form['save_settings'] = array(
+    '#type'        => 'submit',
+    '#value'       => t('Save configuration'),
+    '#submit'      => array('tripal_cvb_admin_form_submit'),
+  );
+
+  $form['cvb_list'] = array(
     '#type'        => 'fieldset',
     '#attributes'  => array('class' => array('container-inline')),
     '#title'       => t('Available CV browsers'),
@@ -35,11 +53,33 @@ function tripal_cvb_admin_form($form, &$form_state) {
     '#collapsed'   => FALSE,
   );
 
-  $form['cvb_settings']['cvbrowser_list'] = array(
+  // Displays "add" link.
+  $form['cvb_list']['cvb_add'] = array(
+    '#markup' => l(t('+ Create a new CV Browser'), 'tripal_cvb/add'),
+  );
+
+  // Display list.
+  $form['cvb_list']['cvbrowser_list'] = array(
     '#markup' => entity_ui_controller('tripal_cvb')->overviewTable(),
   );
 
   return $form;
+}
+
+/**
+ * Check and applies CV browser configuration changes.
+ *
+ * @ingroup tripal_cvb
+ */
+function tripal_cvb_admin_form_submit($form_id, &$form_state) {
+
+  $settings = tripal_cvb_get_settings();
+  // Display CV.
+  if (isset($form_state['values']['show_cv'])) {
+    $settings['show_cv'] = $form_state['values']['show_cv'];
+  }
+
+  tripal_cvb_set_settings($settings);
 }
 
 /**
@@ -63,6 +103,7 @@ function tripal_cvb_admin_add_page() {
       'description' => '',
       'root_type' => 'cvterm',
       'root_ids' => '',
+      'show_cv' => 1,
       'uid' => $user->uid,
       'type' => 'tripal_cvb',
     )
@@ -179,18 +220,26 @@ function tripal_cvb_form(array $form, array &$form_state, $browser) {
       '#default_value' => $browser->root_ids,
       '#weight'        => 3,
     ),
+    'show_cv' => array(
+      '#type'          => 'checkbox',
+      '#title'         => t('Display CV on browser page.'),
+      '#description'   => t('Displays the CV name(s) on the browser page as tree root(s).'),
+      '#required'      => FALSE,
+      '#default_value' => $browser->show_cv,
+      '#weight'        => 4,
+    ),
     'description' => array(
       '#type'          => 'textarea',
       '#title'         => t('CV Browser description'),
       '#description'   => t('This field is for administration purpose only.'),
       '#required'      => FALSE,
       '#default_value' => $browser->description,
-      '#weight'        => 4,
+      '#weight'        => 5,
     ),
     'uid' => array(
       '#type' => 'value',
       '#value' => $browser->uid,
-      '#weight'        => 6,
+      '#weight'        => 7,
     ),
   );
 

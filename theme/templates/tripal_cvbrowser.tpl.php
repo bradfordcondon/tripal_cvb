@@ -20,9 +20,9 @@ drupal_add_js(drupal_get_path('module', 'tripal_cvb') . '/theme/js/tripal_cvb.js
 <?php
 if (count($cv_terms)) {
   echo "<ul class=\"tripal-cvb\">\n";
-  // Check if we got several CV.
-  if (1 < count(array_keys($cv_terms))) {
-    // Work on each CV.
+  // Check if we should display CVs.
+  if ($browser->show_cv) {
+    // Display each CV.
     foreach ($cv_terms as $cv_id => $terms) {
       echo
         '<li class="tripal-cvb tripal-cvb-root tripal-cvb-has-children tripal-cvb-expanded tripal-cvb-action-processed"><span class="tripal-cvb-cv tripal-cvb-cvid-'
@@ -59,30 +59,31 @@ if (count($cv_terms)) {
     }
   }
   else {
-    // Just one CV.
-    // Displays first level nodes.
-    foreach (current($cv_terms) as $term) {
-      if (0 < $term->children_count) {
-        echo
-          '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-has-children tripal-cvb-collapsed"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
-          . $term->cvterm_id
-          . '" title="('
-          . $term->cv
-          . ') '
-          . str_replace('"', "'", $term->definition)
-          . '">'
-          . $term->name
-          . '</span>';
+    // Just displays first level nodes.
+    foreach ($cv_terms as $cv_id => $terms) {
+      foreach ($terms as $term) {
+        if (0 < $term->children_count) {
+          echo
+            '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-has-children tripal-cvb-collapsed"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
+            . $term->cvterm_id
+            . '" title="('
+            . $term->cv
+            . ') '
+            . str_replace('"', "'", $term->definition)
+            . '">'
+            . $term->name
+            . '</span>';
+        }
+        else {
+          echo
+            '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-leaf"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
+            . $term->cvterm_id
+            . '">'
+            . $term->name
+            . '</span>';
+        }
+        echo "</li>\n";
       }
-      else {
-        echo
-          '    <li class="tripal-cvb tripal-cvb-root tripal-cvb-leaf"><span class="tripal-cvb-cvterm tripal-cvb-cvtermid-'
-          . $term->cvterm_id
-          . '">'
-          . $term->name
-          . '</span>';
-      }
-      echo "</li>\n";
     }
   }
   echo "</ul>\n";

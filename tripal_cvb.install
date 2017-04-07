@@ -14,8 +14,8 @@ function tripal_cvb_install() {
   $t = get_t();
 
   // Initializes Tripal CV Browser settings.
-  $initial_tripal_cvb_cvb_settings = tripal_cvb_get_cv_settings(TRUE);
-  variable_set('tripal_cvb_settings', $initial_tripal_cvb_cvb_settings);
+  $initial_tripal_cvb_settings = tripal_cvb_get_settings(TRUE);
+  tripal_cvb_set_settings($initial_tripal_cvb_settings);
 
   // Make sure the field doesn't already exist.
   if (!field_read_field('cvterm_action', array('include_inactive' => TRUE))) {
@@ -50,13 +50,13 @@ function tripal_cvb_install() {
           'module' => 'cvterm_action',
           'settings' => array(),
           'type' => 'cvterm_action',
-          'weight' => 5,
+          'weight' => 6,
         ),
         'teaser' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 5,
+          'weight' => 6,
         ),
       ),
       'settings' => array(),
@@ -64,7 +64,7 @@ function tripal_cvb_install() {
         'module' => 'cvterm_action',
         'settings' => array(),
         'type' => 'cvterm_action',
-        'weight' => 5,
+        'weight' => 6,
       ),
     );
     field_create_instance($instance);
@@ -164,6 +164,13 @@ function tripal_cvb_schema() {
         'default' => '',
         'description' => 'CV Browser root object identifiers or names.',
         'translatable' => FALSE,
+      ),
+      'show_cv' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+        'description' => 'Displays the root CV(s) on the browser.',
       ),
       // Exportable stuff.
       'status' => array(

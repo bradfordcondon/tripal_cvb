@@ -22,6 +22,7 @@ class TripalCVBrowserController extends EntityAPIControllerExportable {
       'description' => '',
       'root_type' => 'cvterm',
       'root_ids' => '0',
+      'show_cv' => '1',
       'uid' => $user->uid,
       'type' => 'tripal_cvb',
     );

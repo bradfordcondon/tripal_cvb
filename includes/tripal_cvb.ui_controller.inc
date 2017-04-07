@@ -52,6 +52,7 @@ class TripalCVBrowserUIController extends EntityDefaultUIController {
           'title'      => $title,
           'root_type'  => $entity->root_type,
           'root_ids'   => $entity->root_ids,
+          'show_cv'    => $entity->show_cv,
           'operations' => $operations,
         );
       }
@@ -64,6 +65,7 @@ class TripalCVBrowserUIController extends EntityDefaultUIController {
               'title'      => t('Name'),
               'root_type'  => t('Root type'),
               'root_ids'   => t('Root identifiers'),
+              'show_cv'    => t('Display CV'),
               'operations' => t('Operations'),
             ),
           'rows' => $rows,

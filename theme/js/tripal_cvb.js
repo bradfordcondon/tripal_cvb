@@ -280,8 +280,8 @@
                   var view_name = view_match[1];
                   var display_id = view_match[2];
                   $.ajax({
-                    url: Drupal.settings.basePath + '/views/ajax',
-                    type: 'post',
+                    url: Drupal.settings.basePath + 'views/ajax',
+                    type: 'get',
                     data: {
                       view_name: view_name,
                       view_display_id: display_id,

@@ -20,21 +20,39 @@
  */
 
 /**
+ * Returns default settings.
+ *
+ * Returns an array containing the default settings used by this Tripal CV
+ * browser installation.
+ *
+ * @return array
+ *   The Tripal CV browser default setting array. These settings may differ from
+ *   those ones of current configuration.
+ *
+ * @see tripal_cvb_get_settings()
+ * @ingroup tripal_cvb_api
+ */
+function tripal_cvb_get_default_settings() {
+  return array(
+    'show_cv' => TRUE,
+  );
+}
+
+/**
  * Returns CV settings.
  *
- * Returns an array containing the CV settings used by this Tripal CV Browser
+ * Returns an array containing the settings used by this Tripal CV Browser
  * installation.
  *
  * @param bool $reset
  *   Clear current settings and reload them from database.
  *
  * @return array
- *   key are Tripal CV Browser API term/field names and values are corresponding
- *   Chado cvterm_id.
+ *   Current Tripal CV browser setting array.
  *
  * @ingroup tripal_cvb_api
  */
-function tripal_cvb_get_cv_settings($reset = FALSE) {
+function tripal_cvb_get_settings($reset = FALSE) {
   static $settings;
   // If not initialized, get it from cache if available.
   if (!isset($settings) || $reset) {
@@ -44,17 +62,35 @@ function tripal_cvb_get_cv_settings($reset = FALSE) {
       $settings = $cache->data;
     }
     else {
-      // Not available in cache, get it from saved settings.
-      $settings = variable_get('tripal_cvb_settings', array());
-      drupal_alter('tripal_cvb_settings', $settings);
+      // Not available in cache, get it from saved settings or defaults.
+      $settings = variable_get(
+        'tripal_cvb_settings',
+        tripal_cvb_get_default_settings()
+      );
       cache_set('tripal_cvb_settings', $settings);
     }
   }
-  else {
-    drupal_alter('tripal_cvb_settings', $settings);
-  }
 
   return $settings;
+}
+
+/**
+ * Saves CV settings.
+ *
+ * Saves the CV settings used by this Tripal CV Browser installation.
+ *
+ * @param array $settings
+ *   A new setting array.
+ *
+ * @ingroup tripal_cvb_api
+ */
+function tripal_cvb_set_settings($settings = array()) {
+  // Set default settings if some are missing.
+  $settings += tripal_cvb_get_default_settings();
+  $settings = variable_set('tripal_cvb_settings', $settings);
+
+  // Reset cache and static variable.
+  $settings = tripal_cvb_get_settings(TRUE);
 }
 
 /**
@@ -134,7 +170,8 @@ function tripal_cvb_get_cvterm_children($cvterm_id) {
       JOIN {cv} cv ON cv.cv_id = cvt.cv_id
       JOIN {dbxref} dbx ON dbx.dbxref_id = cvt.dbxref_id
       JOIN {db} db ON db.db_id = dbx.db_id
-    WHERE cvtr.object_id = :object_cvterm_id;
+    WHERE cvtr.object_id = :object_cvterm_id
+    ORDER BY cvt.name ASC
   ';
   $relationship_records = chado_query(
     $sql_query,
@@ -177,6 +214,8 @@ function tripal_cvb_get_cvterm_children_json($cvterm_id) {
  */
 function tripal_cvb_cv_render($browser_type, $root_ids) {
 
+  $settings = tripal_cvb_get_settings();
+
   if (!isset($browser_type)) {
     $browser_type = 'cv';
   }
@@ -200,6 +239,7 @@ function tripal_cvb_cv_render($browser_type, $root_ids) {
       array(
         'root_type' => $browser_type,
         'root_ids' => $root_ids,
+        'show_cv' => $settings['show_cv'],
       )
     );
   }
@@ -303,6 +343,13 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
       ));
   }
 
+  if ($browser->show_cv) {
+    $order_by = ' ORDER BY cv.name ASC, cvt.name ASC'; 
+  }
+  else {
+    $order_by = ' ORDER BY cvt.name ASC';
+  }
+
   // @see tripal_cvb_get_cvterm_children()
   $sql_query = '
     SELECT
@@ -326,7 +373,8 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
       JOIN {dbxref} dbx ON dbx.dbxref_id = cvt.dbxref_id
       JOIN {db} db ON db.db_id = dbx.db_id'
     . (empty($where_clause) ? '' : ' WHERE ')
-    . implode(' AND ', $where_clause);
+    . implode(' AND ', $where_clause)
+    . $order_by;
 
   $term_records = chado_query(
     $sql_query,
