@@ -77,9 +77,9 @@ CONFIGURATION
    (admin/structure/block). You can also configure access permission and block
    visibility for each block using their "configuration" link.
    If you prefer to have your browsers displayed as a page instead of a block,
-   you can use the Drupal path 'cvbrowser/browser/' + the CV browser machine
-   name. In this case, access are managed using the "Use tripal cv browser page"
-   permission.
+   you can use the Drupal path 'tripal/cvbrowser/browser/' + the CV browser
+   machine name. In this case, access are managed using the "Use tripal cv
+   browser page" permission.
 
 
 ACTIONS
@@ -89,33 +89,80 @@ Actions are operations that can be performed automatically or by a user click
 on a term of a CV browser. There are several types of actions:
 
  - View: it uses a display of a Drupal view to render something given a
-   "cvterm_id" as parameter.
+   "cvterm_id" as parameter. The "use Ajax" setting of the view display must be
+   turned on.
 
  - Path: it uses a Drupal path and append a given "cvterm_id" to it as parameter
    in order to display the associated page content.
+   ex.: "admin/tripal/chado/tripal_cv/cv/15/cvterm/edit" would become
+        "admin/tripal/chado/tripal_cv/cv/15/cvterm/edit/41"
 
- - External URL: it displays a link (with the "cvterm_id" appended) to an
-   external site page.
+ - External URL: it displays a link to an external site page. Several parameters
+   can be replaced in that URL if you use the following placeholders:
+   - "!cvterm": will be replaced by the CV term name;
+     ex.: "organelle inheritance"
+   - "!accession": will be replaced by the CV term accession (identfier) on the
+     database it comes from;
+     ex.: "0048308"
+   - "!cv": will be replaced by the CV name;
+     ex.: "biological_process"
+   - "!db": will be replaced by the database name the CV term comes from.
+     ex.: "GO"
+   ex.: "https://www.google.com/search?q=!cvterm" would become
+        "https://www.google.com/search?q=organelle+inheritance"
 
- - Javascript: it executes the given javascript function name given it the
-   "cvterm_id" as only argument.
+ - Javascript: it executes the given javascript function name given it a
+   "cvterm" object as only argument. This object has the following properties:
+   - "name": the CV term name;
+     ex.: "organelle inheritance"
+   - "cv": the CV term CV name;
+     ex.: "biological_process"
+   - "definition": the CV term definition;
+     ex.: "The partitioning of organelles between daughter cells at cell
+           division. [GOC:jid]"
+   - "db": the CV term database of origin name;
+     ex.: "GO"
+   - "urlprefix": the CV term database URL prefix;
+     ex.: "http://amigo.geneontology.org/amigo/term/GO:"
+   - "dbxref": the CV term database accession;
+     ex.: "0048308"
+   - "is_obsolete": the CV term "obsolete" status (boolean "0" or "1");
+     ex.: "0"
+   - "is_relationshiptype": the CV term "relationship type" status (boolean "0"
+     or "1");
+     ex.: "0"
+   - "relationship": the name of the relationship between the CV term and its
+     parent term;
+     ex.: "is_a"
+   - "children_count": the number of children of the CV term;
+     ex.: "7"
+   - "cvterm_id": Chado cvterm_id;
+     ex.: "41"
+   - "cv_id": Chado cv_id;
+     ex.: "15"
+   - "dbxref_id": Chado dbxref_id.
+     ex.: "46"
+   ex.: "Drupal.tripal_cvb.cvtermDump" (this is a function provided by this
+     module) which prototype is ("Drupal" is a predefinied variable):
+     "Drupal.tripal_cvb.cvtermDump = function (cvterm) { ... };"
 
 Action field (ie. action to use) content depends on the type of action. For
-"View", it must contain the view machine name, colon, and the display id. For
-"Path", it must be the Drupal path with or without ending slash. For "External
-URL", it must be the full URL (the "cvterm_id" will be appended to that URL).
-And finally, for "Javascript", it must be the function name without parenthesis
-or other piece of code.
+"View", it must contain "the view machine name" + colon + "the display id" but
+the user interface separate these parameters into 2 dedicated fields for
+convenience. For "Path", it must be the Drupal path with or without ending
+slash. For "External URL", it must be the full URL (replacement patterns were
+described in previous paragraph). And finally, for "Javascript", it must be the
+function name without parenthesis or any other piece of code.
 
-Link label is the label of the action that is displayed before the action has
+"Link label" is the label of the action that is displayed before the action has
 been executed.
 
 The Auto-run checkbox setup if the action should be executed when the page is
 loaded or when the user clicks on the action link. This setting is ignored by
 the "External URL" type of action.
 
-The target defines where the output of the action should be displayed. There are
-3 types of targets:
+The target defines where the output of the action should be displayed (setting
+ignored by External URL and Javascript). There are 3 types of targets:
 
  - Term line: it will be displayed on the same line as the CV term on the CV
    browser tree.

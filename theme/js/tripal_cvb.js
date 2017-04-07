@@ -414,7 +414,7 @@
       + 'Chado cv_id: ' + cvterm.cv_id + "\n"
       + 'Chado dbxref_id: ' + cvterm.dbxref_id + "\n"
     );
-  }
+  };
 
   /**
    * Initializes CV browser when the page is loaded.
