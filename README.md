@@ -93,9 +93,28 @@ on a term of a CV browser. There are several types of actions:
    turned on.
 
  - Path: it uses a Drupal path and append a given "cvterm_id" to it as parameter
-   in order to display the associated page content.
+   in order to display the associated page content if no other pattern has been
+   specified in the path. Otherwise, the "%" character will be replaced by the
+   "cvterm_id". It is also possible to use the following replacement patterns:
+   - "!cvterm_id": will be replaced by the Chado "cvterm_id";
+     ex.: "41"
+   - "!cvterm": will be replaced by the CV term name;
+     ex.: "organelle inheritance"
+   - "!dbxref_id": will be replaced by the Chado "dbxref_id";
+     ex.: "46"
+   - "!accession": will be replaced by the CV term accession (identfier) on the
+     database it comes from;
+     ex.: "0048308"
+   - "!cv": will be replaced by the CV name;
+     ex.: "biological_process"
+   - "!cv_id": will be replaced by the Chado "cv_id";
+     ex.: "15"
+   - "!db": will be replaced by the database name the CV term comes from.
+     ex.: "GO"
    ex.: "admin/tripal/chado/tripal_cv/cv/15/cvterm/edit" would become
         "admin/tripal/chado/tripal_cv/cv/15/cvterm/edit/41"
+   and "admin/tripal/chado/tripal_cv/cv/!cv_id/cvterm/edit/!cvterm_id" would
+        become "admin/tripal/chado/tripal_cv/cv/15/cvterm/edit/41"
 
  - External URL: it displays a link to an external site page. Several parameters
    can be replaced in that URL if you use the following placeholders:

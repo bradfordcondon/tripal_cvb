@@ -275,6 +275,7 @@
           switch (action.type) {
             case 'view':
               get_content = function () {
+                $action_element.prepend($('<div class="ajax-progress"><div class="throbber">&nbsp;</div></div>'));
                 var view_match = action_parameters.match(/(.+):(.+)/);
                 if (view_match) {
                   var view_name = view_match[1];
@@ -291,9 +292,11 @@
                     success: function (response) {
                       if (response[1] !== undefined) {
                           display_content(response[1].data);
+                          $action_element.find('.ajax-progress').remove();
                       }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
+                      $action_element.find('.ajax-progress').remove();
                     }
                   });
                 }
@@ -306,16 +309,18 @@
             case 'path':
               // Drupal path: extract content from the URL.
               // Prepare call URL.
-              action_parameters =
-                Drupal.settings.basePath
-                + '/'
-                + action_parameters;
-              // Replace the place holder with the cvterm_id parameter.
-              if (-1 == action_parameters.indexOf('%')) {
-                action_parameters += '/%';
-              }
+              action_parameters = Drupal.settings.basePath + action_parameters;
+              // Replace the placeholder with the cvterm_id parameter.
               action_parameters = action_parameters.replace('%', cvterm_id);
+              action_parameters = action_parameters.replace(/!cvterm_id/g, cvterm_data.cvterm_id);
+              action_parameters = action_parameters.replace(/!cvterm/g, cvterm_data.name);
+              action_parameters = action_parameters.replace(/!cv_id/g, cvterm_data.cv_id);
+              action_parameters = action_parameters.replace(/!cv/g, cvterm_data.cv);
+              action_parameters = action_parameters.replace(/!dbxref_id/g, cvterm_data.dbxref_id);
+              action_parameters = action_parameters.replace(/!accession/g, cvterm_data.dbxref);
+              action_parameters = action_parameters.replace(/!db/g, cvterm_data.db);
               get_content = function () {
+                $action_element.prepend($('<div class="ajax-progress"><div class="throbber">&nbsp;</div></div>'));
                 $.ajax({
                   url: action_parameters,
                   type: 'html',
@@ -323,9 +328,11 @@
                     if (response) {
                       // Extract #content part.
                       display_content($(response).find('#content').html());
+                      $action_element.find('.ajax-progress').remove();
                     }
                   },
                   error: function (jqXHR, textStatus, errorThrown) {
+                    $action_element.find('.ajax-progress').remove();
                   }
                 });
               }
@@ -355,12 +362,14 @@
             case 'js':
               // Call given javascript function with cvterm object as parameter.
               get_content = function () {
+                $(this).prepend($('<div class="ajax-progress"><div class="throbber">&nbsp;</div></div>'));
                 try {
                   eval(action.action + '(cvterm_data);');
                 }
                 catch (error) {
                   console.log(error);
                 };
+                $(this).remove('.ajax-progress');
               }
               break;
 

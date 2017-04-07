@@ -353,10 +353,13 @@ function cvterm_action_element_validate($element, &$form_state) {
       $action_value = preg_replace('/^\/+/', '', $action_value);
       // Remove trailing slashes.
       $action_value = preg_replace('/[\/]+$/', '', $action_value);
-      // Check if the parameter place holder has been specified (inside the
-      // path)
-      if (FALSE === strpos($action_value, '/%/')) {
-        // Check if the path exists without parameter.
+      // Check if the parameter uses placeholder.
+      if (FALSE !== strpos($action_value, '!')) {
+        // Placeholders were specified using the "!placeholder" replacement
+        // pattern: no path check.
+      }
+      elseif (FALSE === strpos($action_value, '/%/')) {
+        // No placeholder found, check if the path exists without parameter.
         if (!drupal_valid_path($action_value)) {
           // Invalid path, try to append the place holder.
           $action_value .= '/%';
