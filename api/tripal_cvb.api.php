@@ -344,7 +344,7 @@ function tripal_cvb_browser_render(TripalCVBrowser $browser) {
   }
 
   if ($browser->show_cv) {
-    $order_by = ' ORDER BY cv.name ASC, cvt.name ASC'; 
+    $order_by = ' ORDER BY cv.name ASC, cvt.name ASC';
   }
   else {
     $order_by = ' ORDER BY cvt.name ASC';

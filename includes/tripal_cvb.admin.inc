@@ -20,7 +20,7 @@
  */
 function tripal_cvb_admin_form($form, &$form_state) {
   $form = array();
-  
+
   $settings = tripal_cvb_get_settings();
 
   // Check jQuery version.
@@ -29,7 +29,13 @@ function tripal_cvb_admin_form($form, &$form_state) {
     if (!$jquery_version) {
       $jquery_version = t('Drupal default');
     }
-    drupal_set_message('Tripal CV browser module requires a version of jQuery >= 1.7 while current enabled version of jQuery is ' . $jquery_version . '. Please setup a higher version of jQuery (' . l('jQuery update module settings', 'admin/config/development/jquery_update') . ') in order to have the browser properly working.', 'warning');
+    drupal_set_message(
+      'Tripal CV browser module requires a version of jQuery >= 1.7 while current enabled version of jQuery is ' . $jquery_version . '. Please setup a higher version of jQuery ('
+      . l(
+        t('jQuery update module settings'),
+        'admin/config/development/jquery_update')
+      . ') in order to have the browser properly working.',
+      'warning');
   }
 
   // CV settings.

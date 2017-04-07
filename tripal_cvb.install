@@ -12,21 +12,27 @@
  */
 function tripal_cvb_requirements($phase) {
   $requirements = array();
+  $t = get_t();
   if ($phase == 'install') {
-    // make sure chado is installed
+    // Make sure chado is installed.
     if (!$GLOBALS["chado_is_installed"]) {
-      $requirements ['tripal_cvb'] = array(
-        'title' => "tripal_cvb",
-        'value' => "ERROR: Chado must be installed before this module can be enabled",
+      $requirements['tripal_cvb'] = array(
+        'title' => 'tripal_cvb',
+        'value' => 'ERROR: Chado must be installed before this module can be enabled',
         'severity' => REQUIREMENT_ERROR,
       );
     }
-    
+
     $jquery_version = variable_get('jquery_update_jquery_version', 0);
     if (!version_compare($jquery_version, 1.7, '>=')) {
-      $requirements ['tripal_cvb'] = array(
-        'title' => "tripal_cvb",
-        'value' => "ERROR: enabled jQuery version must be >= 1.7. Check your " . l('jQuery update module settings', 'admin/config/development/jquery_update') . ".",
+      $requirements['tripal_cvb'] = array(
+        'title' => 'tripal_cvb',
+        'value' =>
+        'ERROR: enabled jQuery version must be >= 1.7. Check your '
+        . l(
+          $t('jQuery update module settings'),
+          'admin/config/development/jquery_update')
+        . '.',
         'severity' => REQUIREMENT_WARNING,
       );
     }
