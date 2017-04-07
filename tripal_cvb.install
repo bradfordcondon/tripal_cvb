@@ -6,6 +6,36 @@
  */
 
 /**
+ * Implements hook_requirements().
+ *
+ * @ingroup tripal_cvb
+ */
+function tripal_cvb_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'install') {
+    // make sure chado is installed
+    if (!$GLOBALS["chado_is_installed"]) {
+      $requirements ['tripal_cvb'] = array(
+        'title' => "tripal_cvb",
+        'value' => "ERROR: Chado must be installed before this module can be enabled",
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+    
+    $jquery_version = variable_get('jquery_update_jquery_version', 0);
+    if (!version_compare($jquery_version, 1.7, '>=')) {
+      $requirements ['tripal_cvb'] = array(
+        'title' => "tripal_cvb",
+        'value' => "ERROR: enabled jQuery version must be >= 1.7. Check your " . l('jQuery update module settings', 'admin/config/development/jquery_update') . ".",
+        'severity' => REQUIREMENT_WARNING,
+      );
+    }
+
+  }
+  return $requirements;
+}
+
+/**
  * Implements hook_install().
  *
  * @ingroup tripal_cvb

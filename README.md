@@ -37,9 +37,11 @@ Examples:
 REQUIREMENTS
 ------------
 
-This module requires the following modules:
+This module requires the following:
 
  * Tripal 7.x-2.x (not tested under 3.x) (http://www.drupal.org/project/tripal)
+ 
+ * jQuery >= 1.7 (use jQuery update module)
 
 
 INSTALLATION
