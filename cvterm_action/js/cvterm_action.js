@@ -19,20 +19,20 @@
     var $view_fields = $action_type_field
       .parents('.cvterm-action-widget')
         .find(
-          "div[class$='-action-view-name'].form-item, div[class$='-action-display-id'].form-item"
+          "div[class$='-action-view-name'].form-item, div[class$='-action-display-id'].form-item, div[class*='-action-view-name '].form-item, div[class*='-action-display-id '].form-item"
         );
     var $action_field = $action_type_field
       .parents('.cvterm-action-widget')
-        .find("div[class$='-action'].form-item");
+        .find("div[class$='-action'].form-item, div[class*='-action '].form-item");
     var $autorun_field = $action_type_field
       .parents('.cvterm-action-widget')
         .find(
-          "div[class$='-autorun'].form-item"
+          "div[class$='-autorun'].form-item, div[class*='-autorun '].form-item"
         );
     var $target_fields = $action_type_field
       .parents('.cvterm-action-widget')
         .find(
-          "div[class$='-target-type'].form-item, div[class$='-target-id'].form-item"
+          "div[class$='-target-type'].form-item, div[class$='-target-id'].form-item, div[class*='-target-type '].form-item, div[class*='-target-id '].form-item"
         );
     var target_type_field = $action_type_field
       .parents('.cvterm-action-widget')
@@ -40,7 +40,7 @@
     var $insertion_field = $action_type_field
       .parents('.cvterm-action-widget')
         .find(
-          "div[class$='-insert'].form-item"
+          "div[class$='-insert'].form-item, div[class*='-insert '].form-item"
         );
 
     switch ($action_type_field.val()) {
@@ -90,7 +90,7 @@
     var $target_type_field = $(target_type_field);
     var $target_id_field = $target_type_field
       .parents('.cvterm-action-widget')
-        .find("div[class$='-target-id'].form-item");
+        .find("div[class$='-target-id'].form-item, div[class*='-target-id '].form-item");
     switch ($target_type_field.val()) {
       case 'term':
         $target_id_field.hide();

@@ -9,6 +9,7 @@ CONTENTS OF THIS FILE
  * Installation
  * Configuration
  * Actions
+ * Q & A
  * Maintainers
 
 
@@ -200,6 +201,30 @@ The last setting is the insertion method: "Replace" will replace the content of
 the corresponding target and "Append" will add the content to the given
 target.
 Note: the target settings are ignored for the "External URL" type of action.
+
+
+Q & A
+-----
+Q: How can I remove the "[is a]" and "[part of]" prefix on my browser?
+A: You have to override the CSS styles:
+  .tripal-cvb-relationship-is_a >.tripal-cvb-cvterm:before and 
+  .tripal-cvb-relationship-part_of >.tripal-cvb-cvterm:before
+
+  For instance:
+  .tripal-cvb-relationship-is_a >.tripal-cvb-cvterm:before,
+  .tripal-cvb-relationship-part_of >.tripal-cvb-cvterm:before  {
+    color: inherit;
+    content: "" !important;
+    padding-right: 0;
+  }
+  
+Q: Can I customize the tree nodes according to their parental relationship?
+A: Yes, use CSS class names of the form:
+  "tripal-cvb-relationship-" + relationship name with groups of non-word
+  characters replaced by a single "_".
+  ex.: "part of" becomes "tripal-cvb-relationship-part_of".
+       "weird 'relationship'" becomes
+       "tripal-cvb-relationship-weird_relationship_".
 
 
 MAINTAINERS

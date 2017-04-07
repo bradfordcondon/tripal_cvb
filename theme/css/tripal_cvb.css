@@ -4,13 +4,24 @@
  */
 
 /**
- * CV Browser listing.
+ * CV Browser overview.
  */
 
 .tripal-cvb-browser-list th,
-.tripal-cvb-browser-list td {
+.tripal-cvb-browser-list td,
+.entity-tripal-cvb th,
+.entity-tripal-cvb td {
   padding-right: 4ex;
 }
+
+.entity-tripal-cvb table {
+  margin-top: 0;
+}
+
+.field-name-cvterm-action > .field-label {
+  margin-top: 1.5em;
+}
+
 
 /**
  * Action styles.

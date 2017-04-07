@@ -16,6 +16,11 @@
  * @ingroup callbacks
  */
 function tripal_cvb_view($cvbrowser, $view_mode = 'full', $langcode = NULL) {
+  drupal_add_css(drupal_get_path('module', 'tripal_cvb') . '/theme/css/tripal_cvb.css');
   drupal_set_title(entity_label('tripal_cvb', $cvbrowser));
-  return entity_view('tripal_cvb', array(entity_id('tripal_cvb', $cvbrowser) => $cvbrowser), 'full');
+  return entity_view(
+    'tripal_cvb',
+    array(entity_id('tripal_cvb', $cvbrowser) => $cvbrowser),
+    'full'
+  );
 }
